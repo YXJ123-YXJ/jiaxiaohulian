@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>测试文件上传</title>
+
+    <link rel="shortcut icon" href="/static/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+
+    <script>
+        $(function () {
+            $("#btn1").click(function () {
+                $("#form1").attr("action","/upload.do").submit();
+            })
+        })
+    </script>
+</head>
+<body>
+    <form id="form1" method="post" enctype="multipart/form-data">
+        选择文件：<input type="file" name="file">
+        <button id="btn1">确认文件</button>
+    </form>
+</body>
+</html>

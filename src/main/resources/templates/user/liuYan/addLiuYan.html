@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>添加留言</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+
+    <script>
+
+        function getUNameTo(){
+            var uQuanXian = $("#uQuanXian").val();
+            // alert(uQuanXian);
+            $.ajax({
+                url:"/liuYan/findUserByUQuanXian.do",
+                type:"get",
+                data:{uQuanXian:uQuanXian,uName:$("#loginName").attr("value")},
+                success:function (result) {
+                    $("#uNameTo").html("");
+                    for (var i=0;i<result.length;i++){
+                        $("#uNameTo").append(
+                            "<option value='"+result[i]+"'>"+result[i]+"</option>"
+                        );
+                    }
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }
+
+        $(function () {
+            getUNameTo();
+            $("#uQuanXian").mouseover(function () {
+                getUNameTo();
+            })
+            $("#uQuanXian").mouseleave(function () {
+                getUNameTo();
+            })
+
+            $("#lText").blur(function () {
+                if ($("#lText").val()==""||$("#lText").val()==null){
+                    $("#msgText").html("<font color='red'>留言内容不能为空</font>");
+                }else {
+                }
+            })
+
+            $("#flagTr").mouseover(function () {
+                if ($("#lText").val()!=""&&$("#lText").val()!=null){
+                    $("#addLiuYanBtn").attr("disabled", false);
+                }else {
+                    $("#addLiuYanBtn").attr("disabled", true);
+                }
+            })
+
+        })
+    </script>
+</head>
+<body>
+<div th:include="bar/header::header_bar"></div>
+<div style="height: 190px;width: 100%;background-color: blueviolet;">
+    <img src="/img/banner/在线留言banner.png" style="width: 100%;height: 190px;background-repeat: no-repeat">
+</div>
+<div style="width: 100%;height: 60px;float: left"></div>
+    <div style="margin-left: 15%;border: solid 1px #cccccc;width: 70%;height: 40px;float: left">
+        <div style="float: left;height: 100%;width: 100px;background-color: #088038;text-align: center"><div style="margin-top: 8px"><font color="white">我要留言</font></div></div>
+        <div style="float: right;height: 100%;width: auto">
+            <div style="margin-top: 8px">
+                <font>
+                    当前位置:
+                    <a th:href="@{/index.html}">网站首页</a>&nbsp;>
+                    我要留言&nbsp;&nbsp;
+                </font>
+            </div>
+        </div>
+    </div>
+    <div style="width: 100%;height: 40px;float: left"></div>
+    <div>
+        <form action="/liuYan/addLiuYan.do" method="post" enctype="multipart/form-data">
+            <table border="1" style="width: 70%;height: auto" class="table table-hover" align="center" bordercolor="green">
+                <tr>
+                    <td>留言创建人:</td>
+                    <td><input type="text" id="uNameFrom" readonly name="uNameFrom" th:value="${#session.getAttribute('LOGIN_USER').uName}"></td>
+                </tr>
+                <tr>
+                    <td>留言给:</td>
+                    <td>
+                        <select id="uQuanXian" style="width: 10%">
+                            <option value="1">辅导员</option>
+                            <option value="2">家长</option>
+                            <option value="3">学生</option>
+                        </select>
+                        <select id="uNameTo" name="uNameTo" style="width: 10%"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>电话:</td>
+                    <td><input id="uPhone" type="text" name="uPhone" th:value="${#session.getAttribute('LOGIN_USER').uPhone}" readonly></td>
+                </tr>
+                <tr>
+                    <td>邮箱:</td>
+                    <td><input id="uEmail" type="text" name="uEmail" th:value="${#session.getAttribute('LOGIN_USER').uEmail}" readonly></td>
+                </tr>
+                <tr id="flagTr">
+                    <td>内容:</td>
+                    <td><textarea id="lText" name="lText" cols="50" rows="8"></textarea><span id="msgText"></span></td>
+                </tr>
+                <!--<tr>
+                    <td>附件:</td>
+                    <td><input id="file" name="file" type="file"></td>
+                </tr>-->
+                <tr>
+                    <td colspan="2" align="center">
+                        <button class="btn btn-primary btn-sm" type="reset">重置</button>
+                        <button class="btn btn-primary btn-sm" id="addLiuYanBtn" type="submit">提交</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+<br><br><br><br><br>
+    <div th:include="bar/footBar::foot_bar"></div>
+</body>
+</html>

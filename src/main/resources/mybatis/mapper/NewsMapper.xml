@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yxj.jiaxiaohulian.dao.NewsDao">
+
+    <!--<resultMap id="XueXiaoXinWenMap" type="XueXiaoXinWen">
+        <id column="x_id" property="xId"/>
+        <result column="x_name" property="xName"/>
+        <result column="x_text" property="xText"/>
+        <result column="x_type" property="xType"/>
+        <result column="x_createtime" property="xCreateTime"/>
+        <result column="x_dianjiliang" property="xDianJiLiang"/>
+    </resultMap>-->
+    <sql id="XueXiaoXinWenSql">
+        xw.x_id as xId,xw.x_name as xName,xw.x_text as xText,xw.x_type as xType,
+        xw.x_createtime as xCreateTime,count(dj.x_id) as xDianJiLiang
+    </sql>
+    <select id="findAllNews" resultType="XueXiaoXinWen">
+        SELECT <include refid="XueXiaoXinWenSql"/>
+        from xuexiaoxinwen xw left join xinwendianji dj on xw.x_id=dj.x_id
+        GROUP BY xw.x_id
+        order by xw.x_createtime desc
+    </select>
+
+    <select id="findDianJiByUNameAndXId" resultType="map">
+        select u_name as uName from xinwendianji where u_name=#{uName} and x_id=#{xId}
+    </select>
+
+    <insert id="addDianJiLiang">
+        insert into xinwendianji values(#{uName},#{xId})
+    </insert>
+
+    <select id="findDianJiLiangByXId" resultType="int">
+        select count(x_id) as xDianJiLiang from xinwendianji where x_id=#{xId} group by x_id
+    </select>
+
+</mapper>

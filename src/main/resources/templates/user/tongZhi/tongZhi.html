@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>通知公告</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+
+    <script>
+
+        function showText(){
+            $.ajax({
+                url:"/tongZhi/findAllTongZhi.do",
+                data:{uName:$("#loginName").attr("value")},
+                type:"get",
+                success:function (result) {
+                    $("#allText").html("");
+                    $("#allText").append("<br>")
+                    for (var i=0;i<result.length;i++){
+                        var map = result[i];
+                        var tongZhi = map["tongZhi"];
+                        var chaKan = (map["chaKan"]=="未查看")?"<font color='#FF600C'>"+map["chaKan"]+"</font>":"<font color='green'>"+map["chaKan"]+"</font>"
+                        var time = new Date(tongZhi.tzCreateTime);
+                        var tzLevel = (tongZhi.tzLevel==1)?"校级":(tongZhi.tzLevel==2)?"院级":(tongZhi.tzLevel==3)?"系级":"班级";
+                        $("#allText").append("<div onclick='addChaKan(this);showNeiRong("+tongZhi.tzId+");' style='width: 70%;height: auto;margin: 0 auto' value='"+tongZhi.tzId+"'>\n" +
+                            "            <div style='width: 100%;background-color: darkkhaki'>\n" +
+                            "                <div style='float: left;'>"+(i+1)+"&nbsp;&nbsp;"+tongZhi.tzName+"</div>\n" +
+                            "                <div style='float: right'><span>"+chaKan+"</span>&nbsp;&nbsp;&nbsp;&nbsp;级别:"+tzLevel+"&nbsp;&nbsp;"+time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+
+                                             "&nbsp;"+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds()+"</div>\n" +
+                            "            </div>\n" +
+                            "            <br><hr>\n" +
+                            "        </div>");
+                    }
+                }
+            })
+        }
+
+        $(function () {
+            showText();
+        })
+
+
+        function addChaKan(tzId) {
+            // alert($(tzId).children("div").children("div").children("span").text());
+            // alert($(tzId).attr("value"))
+            var span = $(tzId).children("div").children("div").children("span");
+            if (span.text()=="未查看") {
+                $.ajax({
+                    url: "/tongZhi/addChaKan.do",
+                    type: "get",
+                    data: {tzId: $(tzId).attr("value"), uName: $("#loginName").attr("value")},
+                    success: function (result) {
+                        $(tzId).children("div").children("div").children("span").html("<font color='green'>已查看</font>");
+                    },
+                    error: function () {
+                        alert("系统异常");
+                    }
+                })
+            }
+        }
+
+        function showNeiRong(tzId){
+            $("#textSpace").text("内容详细");
+            $("#neiRongXiangXi").html("<font>\n" +
+                "                            当前位置:\n" +
+                "                            <a href='/index.html'>网站首页</a>&nbsp;>\n" +
+                "                            <button class='btn-sm btn btn-link' onclick='showText()'> <div style='margin-top: 0;width: auto'><font color='#666666'><a href='/user/tongZhi/tongZhi.html'>通知公告</a></font></div></button>&nbsp;>内容详细&nbsp;&nbsp;\n" +
+                "                        </font>");
+            $.ajax({
+                url:"/tongZhi/findTongZhiByTzId.do",
+                type:"get",
+                data:{tzId:tzId},
+                success:function (result) {
+                    $("#allText").html("");
+                    var time = new Date(result.tzCreateTime);
+                    $("#allText").append("<div><br>\n" +
+                        "        <div style='width: 70%;height: 60px;margin-left: 15%;margin-top: 10px;margin-bottom: 10px;text-align: center'><font color='black' face='方正粗黑宋简体' size='6'>"+result.tzName+"</font></div>\n" +
+                        "        <div style='width: 50%;margin:0 auto;text-align: left;'>\n" +
+                        "            <font color='black' size='4' face='黑体'>"+result.tzTextFor+":</font></div>\n" +
+                        "        <div style='width: 50%;margin:0 auto;text-align: left;text-indent: 30px'>\n" +
+                        "            <p><font color='black' size='3' face='仿宋'>\n" +result.tzText+
+                        "        。</font></p></div>\n" +
+                        "        <div style='width: 50%;margin:0 auto;text-align: right;'>\n" +
+                        "            <font>\n" +
+                        "                <br>\n" +result.tzTextFrom+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>\n" +
+                        "                "+time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\n" +
+                        "            </font>\n" +
+                        "        </div><br><br><br><br><br><br>\n" +
+                        "    </div>")
+                }
+            })
+
+        }
+    </script>
+</head>
+<body>
+<div th:include="bar/header::header_bar"></div>
+<div style="height: 190px;width: 100%;background-color: blueviolet">
+    <img src="/img/banner/通知公告banner.png" style="width: 100%;height: 190px;background-repeat: no-repeat">
+</div>
+
+
+    <!--<div><br>
+        <div style="width: 80%;height: 60px;margin:10px auto;text-align: center"><font color="black" face="方正粗黑宋简体" size="6">放假通知</font></div>
+        <div style="width: 50%;margin:0 auto;text-align: left;">
+            <font color="black" size="4" face="黑体">软件学院:</font></div>
+        <div style="width: 50%;margin:0 auto;text-align: left;text-indent: 30px">
+&lt;!&ndash;            <font color="black" size="3" face="黑体">软件学院:</font>&ndash;&gt;
+            <p><font color="black" size="3" face="仿宋">
+            放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知
+            放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知
+            放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知
+            放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知
+            放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知
+            放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知
+            放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知
+            放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知
+            放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知
+            放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知
+            放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知
+            放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知放假通知
+        </font></p></div>
+        <div style="width: 50%;margin:0 auto;text-align: right;">
+            <font>
+                <br>
+                特此通知<br>
+                2020-12-24
+            </font>
+        </div>
+    </div>-->
+<div style="width: 100%;height: 60px;"></div>
+<div style="margin-left: 15%;border: solid 1px #cccccc;width: 70%;height: 40px;">
+    <div style="float: left;height: 100%;width: 100px;background-color: #088038;text-align: center"><div style="margin-top: 8px"><font color="white" id="textSpace">通知公告</font></div></div>
+    <div style="float: right;height: 100%;width: auto">
+        <div style="margin-top: 8px" id="neiRongXiangXi">
+            <font>
+                当前位置:
+                <a th:href="@{/index.html}">网站首页</a>&nbsp;>
+                通知公告&nbsp;&nbsp;
+            </font>
+        </div>
+    </div>
+</div>
+<div style="width: 100%;height: 40px;"></div>
+    <div id="allText">
+
+        <!--<div style="width: 80%;height: auto;margin: 0 auto">
+            <br>
+            <div style="width: 80%;background-color: darkkhaki">
+                <div style="float: left;">通知通知通知标题</div>
+                <div style="float: right">2020-12-23 12:23:34</div>
+            </div>
+            <br><hr>
+            <div style="width: 80%;background-color: bisque">
+                <div style="float: left;">通知通知通知标题通知通知通知标题</div>
+                <div style="float: right">2020-12-23 12:23:34</div>
+            </div>
+        </div>-->
+
+    </div>
+<br><br><br><br><br>
+<div th:include="bar/footBar::foot_bar"></div>
+</body>
+</html>

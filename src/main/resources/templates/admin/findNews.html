@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script>
+        function findNews(xName,xType) {
+            $.ajax({
+                url:"/admin/findNews.do",
+                type:"get",
+                data:{xName:xName,xType:xType},
+                success:function (result) {
+                    // alert(result)
+                    $("#tbody").html("");
+                    for (var i=0;i<result.length;i++){
+                        var news = result[i];
+                        var time = new Date(news.xCreateTime);
+                        var img;
+                        if (news.xTuPian!=null&&news.xTuPian!=''){
+                            img = "<img src='"+news.xTuPian+"' style='width: 45px;height: 60px'>"
+                        }else {
+                            img = "<font>暂无图片</font>"
+                        }
+                        $("#tbody").append("<tr>" +
+                            "<td align='center'>"+(i+1)+"</td>" +
+                            "<td>"+news.xName+"</td>" +
+                            "<td align='center'>"+news.xType+"</td>" +
+                            "<td align='center'>"+img+"</td>" +
+                            "<td align='center'>"+news.xDianJiLiang+"</td>" +
+                            "<td>"+time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+"&nbsp;"+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds()+"</td>" +
+                            "<td><button class='btn btn-danger btn-sm' value='"+news.xId+"' onclick='deleteNewsByXId(this)'>删除</button>&nbsp;" +
+                            "<button class='btn btn-primary btn-sm' value='"+news.xId+"' onclick='findNewsByXId(this)'>详细</button></td>" +
+                            "</tr>")
+                    }
+                }
+            })
+        }
+
+        $(function () {
+            findNews(null,null);
+        })
+
+        function deleteNewsByXId(xId) {
+            if (confirm("确定要删除该条新闻吗？")){
+                $.ajax({
+                    url:"/admin/deleteNewsByXId.do",
+                    type:"get",
+                    data:{xId:$(xId).val()},
+                    success:function (result) {
+                        alert("删除成功！");
+                        $(xId).parent("td").parent("tr").hide();
+                    }
+                })
+            }
+        }
+
+        function find() {
+            var xName = $("#findByName").val();
+            var xType = $("#findByType").val();
+            $("#findByName").val("");
+            $("#findByType").val("");
+            findNews(xName,xType);
+        }
+
+        function findNewsByXId(xId) {
+            $.ajax({
+                url:"/admin/findNews.do",
+                type:"get",
+                data:{xId:$(xId).val()},
+                success:function (result) {
+                    $("#allText").html("");
+                    var news = result[0];
+                    var img;
+                    if (news.xTuPian!=null&&news.xTuPian!=''){
+                        img = "<img src='"+news.xTuPian+"' style='width: 300px;height: 400px' hspace='8'><br>"
+                    }else {
+                        img = ""
+                    }
+                    var time = new Date(news.xCreateTime);
+                    $("#allText").append("<br><div style='width: 70%;margin: 0 auto;text-align: center'>" +
+                        "<div style='text-align: center;'><font color='#008448' size='5'>"+news.xName+"</font>&nbsp;&nbsp;" +
+                        "<font color='#008448' size='3'>"+news.xType+"&nbsp;"+time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+"&nbsp;"+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds()+"</font></div>"+
+                        "    <hr style='border : 1px dashed green;' />" +
+                        "<div style='margin:0 auto;width:720px;text-align:left;text-indent: 2em'>"+news.xText+"</div>\n<br>" +
+                        img +
+                        "</div><br><br><br><br><br>")
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+    <div id="allText">
+        <div style="width: 100%;height: 50px;margin-top: 30px;">
+            <div style="float: left;width: 20%;height: 70px"></div>
+            <div style="float: left;margin-right: 25px"><input type="text" id="findByName" placeholder="新闻标题"></div>
+            <div style="float: left"><input type="text" id="findByType" placeholder="新闻类型"></div>
+            <div style="float: left;margin-left: 20px"><button onclick="find()" class="btn btn-sm" style="background-color: #5cb85c">查询</button></div>
+        </div>
+        <div>
+            <table class="table table-striped" border="1">
+                <thead>
+                    <tr>
+                        <td align='center'><b>序号</b></td>
+                        <td><b>新闻标题</b></td>
+                        <td align='center'><b>新闻类型</b></td>
+                        <td align='center'><b>新闻图片</b></td>
+                        <td align='center'><b>点击量</b></td>
+                        <td ><b>发布时间</b></td>
+                        <td><b>操作</b></td>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

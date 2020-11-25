@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>友情链接查询</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script>
+
+        function findById(ljId) {
+
+           $.ajax({
+                url:"/admin/findWangZhan.do",
+                type:"get",
+                data:{ljId:$(ljId).attr("value")},
+                success:function (result) {
+                    $("#ljId").val(result[0].ljId);
+                    $("#ljName").val(result[0].ljName);
+                    $("#ljSrc").val(result[0].ljSrc);
+                    // $("#myModal").modal('show');
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }
+
+        function findWangZhan(ljName,ljSrc){
+            $.ajax({
+                url:"/admin/findWangZhan.do",
+                type:"get",
+                data:{ljName:ljName,ljSrc:ljSrc},
+                success:function (result) {
+                    $("#tbody").html("");
+                    for (var i=0;i<result.length;i++){
+                        lianJie = result[i];
+                        time = new Date(lianJie.ljCreateTime);
+                        $("#tbody").append("<tr>" +
+                            "<td>"+(i+1)+"</td>" +
+                            "<td>"+lianJie.ljName+"</td>" +
+                            "<td>"+lianJie.ljSrc+"</td>" +
+                            "<td>"+time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+"&nbsp;"+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds()+"</td>" +
+                            "<td>"+
+                            "<button class='btn btn-primary btn-sm' value='"+lianJie.ljId+"' data-toggle='modal' data-target='#myModal' onclick='findById(this)'>编辑</button>" +
+                            "&nbsp;&nbsp;<button class='btn btn-danger btn-sm' value='"+lianJie.ljId+"' onclick='deleteWangZhan(this)'>删除</button>" +
+                            "</td>" +
+                            "</tr>");
+                    }
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }
+
+        function updateWangZhan(){
+            $.ajax({
+                url:"/admin/updateWangZhanByLjId.do",
+                type:"get",
+                data:{ljId:$("#ljId").val(),ljName:$("#ljName").val(),ljSrc:$("#ljSrc").val()},
+                success:function (result) {
+                    $("#myModal").modal("hide");
+                    findWangZhan(null,null);
+                }
+            })
+        }
+
+        function deleteWangZhan(ljId){
+            if (confirm("您确定要删除该条链接吗？")){
+                $.ajax({
+                    url:"/admin/deleteWangZhanByLjId.do",
+                    type:"get",
+                    data:{ljId:$(ljId).val()},
+                    success:function (result) {
+                        alert("删除成功！");
+                        $(ljId).parent("td").parent("tr").hide();
+                    }
+                })
+            }
+        }
+
+        $(function () {
+            findWangZhan(null,null);
+        })
+
+        function find() {
+            findWangZhan($("#findByLjName").val(),$("#findByLjSrc").val());
+            $("#findByLjName").val("");
+            $("#findByLjSrc").val("");
+        }
+
+    </script>
+</head>
+
+</head>
+<body>
+    <div id="allText" style="margin-left: 10px;margin-top: 30px">
+        <div style="float: left;width: 20%;height: 70px"></div>
+        <div style="float: left;margin-right: 25px"><input type="text" id="findByLjName" placeholder="网址名称"></div>
+        <div style="float: left"><input type="text" id="findByLjSrc" placeholder="网址"></div>
+        <div style="float: left;margin-left: 20px"><button onclick="find()" class="btn btn-sm" style="background-color: #5cb85c">查询</button></div>
+        <div>
+            <table class='table table-striped' border='1' bordercolor='green'>
+                <thead>
+                    <tr>
+                        <td>序号</td>
+                        <td>网站名称</td>
+                        <td>网址</td>
+                        <td>添加时间</td>
+                        <td>操作</td>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!--模态框-->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel" align="center">修改友情链接</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body" style="margin: 0 auto">
+                    <form>
+                        <div style="margin: 10px">网站名称:<input type="text" style="width: 100%" class="form-control" name="ljName" id="ljName" placeholder="请输入网站名称"></div>
+                        <div style="margin-left: 10px">网站网址:<textarea placeholder="请输入网站网址" style="width: 100%" class="form-control" cols="60" rows="2" name="ljSrc" id="ljSrc"></textarea></div>
+                        <input type="hidden" name="ljId" id="ljId" value="">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="updateWangZhan()">修改</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+</body>
+</html>

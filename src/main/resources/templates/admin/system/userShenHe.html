@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用户查询</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script>
+
+        function updateUserStateByUName(uName,uShenHe) {
+            $.ajax({
+                url:"/admin/updateUserStateByUName.do",
+                type:"post",
+                data:{uName:uName,uShenHe:uShenHe},
+                success:function (result) {
+                    findUser(null,null,null);
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }
+
+        function findUser(uName,uYuanXi,uQuanXian) {
+            $.ajax({
+                url:"/admin/findToShenHe.do",
+                type:"get",
+                data:{uName:uName,uYuanXi:uYuanXi,uQuanXian:uQuanXian},
+                success:function (result) {
+                    $("#tbody").html("");
+                    for (var i=0;i<result.length;i++){
+                        var user = result[i];
+                        var state = user.uShenHe==0?"<button class='btn btn-sm btn-primary' onclick='updateUserStateByUName(\""+user.uName+"\",1)'>通过</button>" +
+                            "&nbsp;<button class='btn btn-sm btn-danger' onclick='updateUserStateByUName(\""+user.uName+"\",2)'>不通过</button>"
+                            :"<span><font color='red'>不通过</font></span>";
+                        uQuanXian = user.uQuanXian==1?"辅导员":user.uQuanXian==2?"家长":"学生";
+                        var uYuanXi = uQuanXian=="家长"?"无":user.uYuanXi;
+                        $("#tbody").append("<tr>" +
+                            "<td><input type='checkbox' style='width: 20px' class='uNames' name='uNames' value='"+user.uName+"'></td>" +
+                            "<td>"+(i+1)+"</td>" +
+                            "<td>"+user.uName+"</td>" +
+                            "<td>"+user.uSex+"</td>" +
+                            "<td>"+user.uAge+"</td>" +
+                            "<td>"+user.uPhone+"</td>" +
+                            "<td>"+user.uEmail+"</td>" +
+                            "<td>"+uYuanXi+"</td>" +
+                            "<td>"+uQuanXian+"</td>" +
+                            "<td>"+state+"</td>" +
+                            "</tr>")
+                    }
+                }
+            })
+        }
+
+        $(function () {
+            findUser(null,null,null);
+        })
+
+        function find(){
+            findUser($("#findByUName").val(), $("#findByUYuanXi").val(), $("#findByUQuanXian").val());
+        }
+
+        function deleteSelect() {
+            var arr = [];
+            $("input:checkbox:checked").each(function () {
+                arr.push($(this).val());
+            })
+            if (arr.length>0) {
+                $.ajax({
+                    url: "/admin/deleteToShenHeUserByUName.do",
+                    type: "get",
+                    data: {arr: arr},
+                    success: function (result) {
+                        findUser(null, null, null);
+                    },
+                    error: function () {
+                        alert("系统异常");
+                    }
+                })
+            }
+        }
+        $(function () {
+            $("#selectAll").click(function () {
+                var isChecked=this.checked;
+                $("input[name='uNames']").each(function(){
+                    this.checked=isChecked;
+                });
+            })
+        })
+    </script>
+</head>
+
+</head>
+<body>
+    <div id="allText" style="margin-left: 10px;margin-top: 30px;margin-right: 10px">
+        <div style="float: left;width: 20%;height: 70px"></div>
+        <div style="float: left;margin-right: 25px"><input type="text" id="findByUName" placeholder="用户名"></div>
+        <div style="float: left;margin-right: 25px"><input type="text" id="findByUYuanXi" placeholder="院系"></div>
+        <div style="float: left;margin-right: 25px">身份:<select id="findByUQuanXian">
+            <option value="">全部</option>
+            <option value="1">辅导员</option>
+            <option value="2">家长</option>
+            <option value="3">学生</option>
+        </select></div>
+        <div style="float: left;margin-left: 20px"><button onclick="find()" class="btn btn-sm" style="background-color: #5cb85c">查询</button></div>
+        <br>
+        <br>
+        <br>
+        <div style="float: left">
+            <button class="btn btn-danger btn-sm" onclick="deleteSelect()" style="margin-bottom: 10px">删除已选择</button>
+        </div>
+        <div>
+            <table class='table table-striped' border='1' bordercolor='green'>
+                <thead>
+                    <tr>
+                        <td><input type="checkbox" id="selectAll">全选</td>
+                        <td>序号</td>
+                        <td>用户名</td>
+                        <td>性别</td>
+                        <td>年龄</td>
+                        <td>电话</td>
+                        <td>邮箱</td>
+                        <td>院系</td>
+                        <td>权限</td>
+                        <td>操作</td>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

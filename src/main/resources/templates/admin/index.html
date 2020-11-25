@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+</head>
+
+
+
+    <frameset rows="131,*">
+        <frame name="top" src="/admin/top.html" />
+        <frameset cols="199,*">
+            <frame name="left" src="/admin/left.html" />
+            <frame name="right" src="/admin/right.html" />
+        </frameset>
+    </frameset>
+
+</html>

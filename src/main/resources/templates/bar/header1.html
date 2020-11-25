@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div th:fragment="header_bar">
+<div style="height: 27px;width: 100%;background-color: #cccccc">
+    <script>
+        $(function(){
+            var navNum = 0;
+            if($("#navNum").val()==$("#nav0").attr("uri"))
+                navNum = 0;
+            if($("#navNum").val()==$("#nav1").attr("uri"))
+                navNum = 1;
+            if($("#navNum").val()==$("#nav2").attr("uri"))
+                navNum = 2;
+            if($("#navNum").val()==$("#nav3").attr("uri")||$("#navNum").val()=="/addDongTai.html")
+                navNum = 3;
+            if($("#navNum").val()==$("#nav4").attr("uri")||$("#navNum").val()=="/addLiuYan.html")
+                navNum = 4;
+            if($("#navNum").val()==$("#nav5").attr("uri"))
+                navNum = 5;
+            if($("#navNum").val()==$("#nav6").attr("uri"))
+                navNum = 6;
+            if($("#navNum").val()==$("#nav7").attr("uri"))
+                navNum = 7;
+            if($("#navNum").val()==$("#nav8").attr("uri"))
+                navNum = 8;
+            /*var navs = $(".navA");
+            for (var i = 0; i < navs.length; i++) {
+                if ($(navs[i]).attr("uri")==$("#navNum").val()) {
+                    navNum = $(navs[i]).val();
+                    break;
+                }
+            }*/
+            $('ul li').eq(navNum).addClass("act");
+            $('ul li').each(function () {
+                $(this).click(function () {
+                    $(this).addClass("act").siblings().removeClass("act");
+                })
+            })
+
+        })
+    </script>
+    <style>
+        body,ul,ol,li,div,p{margin:0px;padding:0px;}
+        ul{list-style-type:none;border:1px solid blue;background:#088038;height:50px;}
+        ul div{float: left;height: 45px;width: 15%}
+        ul li{float:left;heihgt:45px;line-height:45px;width:100px;text-align:center;}
+        ul li a:link,a:visited{color:#fff;text-decoration:none;}
+        .act{background:#ff6600;}
+    </style>
+    <div style="width: 12%;height: 10px;float: left"></div>
+    <div style="padding: 2px;width: 58%;float: left">
+        <h7>欢迎进入家校互联系统！</h7>
+    </div>
+    <div style="padding: 2px;width: 30%;float: left">
+        <h7><img th:src="${#session.getAttribute('LOGIN_USER').uTouXiang}" style="border-radius: 50%;overflow: hidden;width: 20px;height: 20px;"/>
+            <span id="loginName" th:value="${#session.getAttribute('LOGIN_USER').uName}" th:text="${#session.getAttribute('LOGIN_USER').uName}">xxx</span>&nbsp;&nbsp;&nbsp;
+            权限：<span th:text="${#session.getAttribute('LOGIN_USER').uQuanXian==1?'教师':#session.getAttribute('LOGIN_USER').uQuanXian==2?'家长':'学生'}">xxx
+            </span>&nbsp;&nbsp;&nbsp;
+            <a href="#" style="color: black">退出登录</a></h7>
+    </div>
+</div>
+<div style="height: 120px;width: 100%">
+    <div style="width: 12%;height: 120px;float: left"></div>
+    <div style="padding: 20px;width: 58%;float: left">
+        <h3 style="color: #088038">家校互联</h3>
+        <h4 style="color: #088038">全力打造，精心呵护</h4>
+    </div>
+    <div style="padding: 20px;width: 30%;float: left">
+        <h4 style="color: #088038">咨询电话</h4>
+        <h3 style="color: #088038">123423424324</h3>
+    </div>
+</div>
+<!--导航栏开始-->
+<!--<div style="width: 100%;height: 50px;background-color: #088038;">
+    <div style="float: left;width: 0;height: 50px"></div>-->
+    <!--<div style="margin-left: 30px;padding: 10px;float: left;"><font color="#f0f8ff"><button class="btn btn-link">网站首页</button></font></div>
+    <div style="margin-left: 30px;padding: 10px;float: left;"><font color="#f0f8ff">系统简介</font></div>
+    <div style="margin-left: 30px;padding: 10px;float: left;"><font color="#f0f8ff">学校新闻</font></div>
+    <div style="margin-left: 30px;padding: 10px;float: left;"><font color="#f0f8ff">师生动态</font></div>
+    <div style="margin-left: 30px;padding: 10px;float: left;"><font color="#f0f8ff">留言交流</font></div>
+    <div style="margin-left: 30px;padding: 10px;float: left;"><font color="#f0f8ff">通知公告</font></div>
+    <div style="margin-left: 30px;padding: 10px;float: left;"><font color="#f0f8ff">请假管理</font></div>
+    <div style="margin-left: 30px;padding: 10px;float: left;"><font color="#f0f8ff">联系我们</font></div>
+    <div style="margin-left: 30px;padding: 10px;float: left;"><font color="#f0f8ff">后台管理</font></div>
+-->
+    <input type="hidden" th:value="${#httpServletRequest.requestURI}" id="navNum">
+    <ul type="desc">
+        <li><a th:href="@{/index.html}" value="0" id="nav0" uri="/index.html">网站首页</a></li>
+        <li><a th:href="@{/jianJie.html}" value="1" id="nav1" uri="/jianJie.html">系统简介</a></li>
+        <li><a th:href="@{/schoolNews.html}" value="2" id="nav2" uri="/schoolNews.html">校园新闻</a></li>
+        <li><a th:href="@{/dongTai.html}" value="3" id="nav3" uri="/dongTai.html">师生动态</a></li>
+        <li><a th:href="@{/liuYan.html}" value="4" id="nav4" uri="/liuYan.html">留言交流</a></li>
+        <li><a th:href="@{/tongZhi.html}" value="5" id="nav5" uri="/tongZhi.html">通知公告</a></li>
+        <li><a th:href="@{/qingJia.html}" value="6" id="nav6" uri="/qingJia.html">请假管理</a></li>
+        <li><a th:href="@{/callMe.html}" value="7" id="nav7" uri="/callMe.html">联系我们</a></li>
+        <li><a th:href="@{/houTai.html}" value="8" id="nav8" uri="/houTai.html">后台管理</a></li>
+    </ul>
+    <!--导航栏结束-->
+</div>
+</body>
+</html>

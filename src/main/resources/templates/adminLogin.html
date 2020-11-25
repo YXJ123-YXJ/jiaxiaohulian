@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员登录</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <link th:href="@{/css/font-awesome/4.7.0/css/font-awesome.min.css}" rel="stylesheet" type="text/css"/>
+
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <link th:href="@{/css/style.min.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/css/limonte-sweetalert2/6.4.1/sweetalert2.min.css}" rel="stylesheet" type="text/css"/>
+
+    <script th:src="@{/js/libs/html5shiv.js}"></script>
+    <script th:src="@{/js/libs/respond.min.js}"></script>
+
+    <script th:src="@{/js/libs/sweetalert2.min.js}"></script>
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script th:src="@{/js/base.js}"></script>
+
+    <style type="text/css">
+        .panel-shadow {
+            -moz-box-shadow: 0px 0px 10px 0px rgba(39, 49, 65, 0.1);
+            -webkit-box-shadow: 0px 0px 10px 0px rgba(39, 49, 65, 0.1);
+            box-shadow: 0px 0px 10px 0px rgba(39, 49, 65, 0.1);
+        }
+        .bg-overlay {
+            -moz-border-radius: 6px 6px 0 0;
+            -webkit-border-radius: 6px 6px 0 0;
+            background-color: rgba(47, 51, 62, 0.3);
+            border-radius: 6px 6px 0 0;
+            height: 100%;
+            left: 0;
+            position: absolute;
+            top: 0;
+            width: 100%;
+        }
+        .input-border {b1.png
+            font-size: 14px;
+            width: 100%;
+            height: 40px;
+            border-radius: 0;
+            border: none;
+            border-bottom: 1px solid #dadada;
+        }
+
+        .bg-img > h3 {
+            text-shadow: 0px 2px 3px #555;
+            color: #cac9c8;
+        }
+    </style>
+
+    <script type="text/javascript">
+        $(function () {
+            $("#adminLoginbtn").click(function () {
+                var aName = $("#aName").val();
+                var aPwd = $("#aPwd").val();
+                // var uQuanXian = $("#uQuanXian").val();
+                $.ajax({
+                    url:"/login.do",
+                    type:"post",
+                    data:{uName:aName,uPwd:aPwd},
+                    success:function (result) {
+                        if (result==111) {
+                            alert("登录成功！");
+                            location.href = "/admin/index.html";
+                        }else {
+                            alert("用户名或密码错误，登录失败！");
+                            location.href = "/adminLogin.html";
+                        }
+                    }
+                })
+            })
+        })
+    </script>
+</head>
+<body style="background:url(/bg/1.png);background-repeat: no-repeat;background-size: cover;height: 720px">
+    <div style="margin: 0 auto; padding-bottom: 0%; padding-top: 7.5%; width: 380px;">
+        <div class="panel panel-color panel-danger panel-pages panel-shadow">
+            <div class="panel-heading bg-img">
+                <div class="bg-overlay"></div>
+                <h3 class="text-center m-t-10"> Admin Login</h3>
+            </div>
+            <div class="panel-body" style="background-color: white">
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <input class=" input-lg input-border" name="aName" id="aName" type="text" required=""
+                                   placeholder="账 号"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <input class=" input-lg input-border" name="aPwd" id="aPwd" type="password" required=""
+                                   placeholder="密 码"/>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 30px">
+                        <div class="col-xs-12">
+                            <div style="float: right;margin-bottom: 40px"><a th:href="@{/userLogin.html}" style="color:black;">用户登录</a></div>
+                        </div>
+                    </div>
+                    <div class="form-group text-center m-t-40">
+                        <div class="col-xs-12">
+                            <button class="btn btn-danger btn-lg btn-rounded btn-block w-lg waves-effect waves-light" style="box-shadow: 0px 0px 4px #868282;" id="adminLoginbtn">登&nbsp;录
+                            </button>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

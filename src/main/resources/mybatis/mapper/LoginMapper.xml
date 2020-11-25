@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yxj.jiaxiaohulian.dao.LoginDao">
+
+    <resultMap id="userLoginMap" type="User">
+        <id column="u_stuno" property="uStuNo"/>
+        <result column="u_clazz" property="uClazz"/>
+        <result column="u_yuanxi" property="uYuanXi"/>
+        <result column="u_name" property="uName"/>
+        <result column="u_pwd" property="uPwd"/>
+        <result column="u_salt" property="uSalt"/>
+        <result column="u_quanxian" property="uQuanXian"/>
+        <result column="u_sex" property="uSex"/>
+        <result column="u_age" property="uAge"/>
+        <result column="u_dizhi" property="uDiZhi"/>
+        <result column="u_touxiang" property="uTouXiang"/>
+        <result column="u_phone" property="uPhone"/>
+        <result column="u_email" property="uEmail"/>
+        <result column="u_idcard" property="uIdCard"/>
+        <result column="u_addtime" property="uAddTime"/>
+        <result column="us_name" property="usName"/>
+        <result column="ut_name" property="utName"/>
+        <result column="uj_name" property="ujName"/>
+        <result column="u_shenhe" property="uShenHe"/>
+        <result column="u_role" property="uRole"/>
+    </resultMap>
+    <sql id="UserSql">
+        u_stuno,u_yuanxi,u_clazz,u_name,u_pwd,u_quanxian,u_sex,u_age,u_dizhi,u_touxiang,u_phone,
+        u_email,u_idcard,u_addtime,us_name,ut_name,uj_name,u_shenhe,u_role,u_salt
+    </sql>
+    <select id="userLogin" resultMap="userLoginMap">
+        select <include refid="UserSql"/> from user where u_name=#{uName} and u_pwd=#{uPwd}
+    </select>
+
+    <sql id="YouQingLianJieSql">
+        lj_id as ljId,lj_name as ljName,lj_src as ljSrc,lj_createtime as ljCreateTime
+    </sql>
+    <select id="findWangZhan" resultType="YouQingLianJie">
+        select <include refid="YouQingLianJieSql"/> from youqinglianjie
+    </select>
+
+    <select id="checkUNameExsit" resultMap="userLoginMap">
+        select <include refid="UserSql"/> from user where u_name=#{uName}
+    </select>
+
+    <sql id="SystemsSql">
+        system_id as systemId,xitongjianjie as xiTongJianJie,xitongxieyi as xiTongXieYi,
+        lianxiwomen as lianXiWoMen,guanyuwomen as guanYuWoMen
+    </sql>
+    <select id="findSystems" resultType="Systems">
+        select <include refid="SystemsSql"/> from system where system_id=1
+    </select>
+
+    <select id="findYXueYuan" resultType="string">
+        select distinct y_xueyuan as yXueYuan from yuanxi
+    </select>
+    <select id="findYXi" resultType="string">
+        select distinct y_xi as yXi from yuanxi where y_xueyuan=#{yXueYuan}
+    </select>
+    <select id="findYClazz" resultType="string">
+        select distinct y_clazz as yClazz from yuanxi where y_xueyuan=#{yXueYuan} and y_xi=#{yXi}
+    </select>
+
+    <select id="findAllUtName" resultType="string">
+        select u_name from user where u_quanxian=1 and u_shenhe=1
+    </select>
+
+    <insert id="userRegister">
+        insert into user values(#{uName},#{uPwd},#{uSalt},#{uQuanXian},#{uSex},#{uAge},#{uDiZhi},#{uTouXiang},#{uPhone},
+        #{uEmail},#{uIdCard},#{uAddTime},0,#{usName},#{utName},#{ujName},#{uShenHe},null,#{uYuanXi},#{uClazz},#{uRole})
+    </insert>
+
+    <!--<select id="findUserByUName" resultMap="userLoginMap">
+        select <include refid="UserSql"/> from user where u_name=#{uName}
+    </select>-->
+
+    <update id="updateUPwd">
+        update user set u_pwd=#{uPwd},u_salt=#{uSalt} where u_name=#{uName}
+    </update>
+
+    <select id="findRolesByUserName" resultMap="userLoginMap">
+        select <include refid="UserSql"/> from user where u_name=#{uName}
+    </select>
+
+</mapper>

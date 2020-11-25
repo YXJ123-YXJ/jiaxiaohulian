@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>学校新闻</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script>
+        var maxPage = 1;
+        var pageN = 1;
+        /*function showAndHidden(mm) {
+            var show_hidden = $(mm).next().attr("value");
+            if (show_hidden=="show"){
+                $(mm).next().attr("value","hidden");
+                $(mm).next().hide();
+                return;
+            }else {
+                $(mm).next().attr("value","show");
+                $(mm).next().show();
+                return;
+            }
+        }*/
+
+        function findAllNews(pageNum){
+            $("#pageText").show();
+            $.ajax({
+                url:"/news/findAllNews.do",
+                type:"get",
+                data:{pageNum:pageNum},
+                success:function (result) {
+                    $("#neiRongXiangXi").html("");
+                    $("#neiRongXiangXi").append("<font>\n" +
+                        "                            当前位置:\n" +
+                        "                            <a href='/index.html'>网站首页</a>&nbsp;>\n" +
+                        "                            校园新闻&nbsp;&nbsp;\n" +
+                        "                        </font>")
+                    var list1 = result["list1"];
+                    // alert(result["maxPage"]);
+                    /*var div11 = $("#hidden_show_controller");
+                    div11.html("");*/
+                    $("#allText").html("")
+                    maxPage = result["maxPage"];
+                    $("#maxPage").val(maxPage);
+                    $("#maxPage").text(maxPage);
+                    // $("form#maxPage").attr("value",result["maxPage"]);
+                    // div11.append("<input type='hidden' id='maxPage' value='"+result["maxPage"]+"'>");
+                    for (var i=0;i<list1.length;i++){
+                        var news = list1[i];
+                        $("#allText").append("<div onclick='findNewsByXId(\""+news.xId+"\");addDianJiLiang(this);' value='"+news.xId+"' style='width: 70%;margin:0 auto;'>" +
+                            "                <div style='float: left;'><font><b>"+news.xName+"</b></font>"+
+                            "&nbsp;&nbsp;"+"<font size='1'>点击量:"+"<span>"+news.xDianJiLiang+"</span></font>"+
+                            "&nbsp;&nbsp;"+"</div>" +
+                            "                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->></div>" +
+                            "<div style='float: right'>"+new Date(news.xCreateTime).getFullYear()+"-"+
+                            (new Date(news.xCreateTime).getMonth()+1)+"-"+new Date(news.xCreateTime).getDate()+"&nbsp;"+new Date(news.xCreateTime).getHours()
+                            +":"+new Date(news.xCreateTime).getMinutes()+":"+new Date(news.xCreateTime).getSeconds()+"</div>"+
+                            "                <br>" +
+                            "            </div><hr>");
+                    }
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }
+        
+        $(function () {
+            findAllNews(1);
+        })
+
+        function changePage(mm) {
+            var flag = $(mm).val();
+            var span1 = parseInt($("#span1").text());
+            if (flag=="shou"){
+                $("#span1").val(1);
+                $("#span1").text(1);
+                pageN = parseInt($("#span1").text());
+                findAllNews($("#span1").val());
+            }
+            if (flag=="wei"){
+                $("#span1").val(maxPage);
+                $("#span1").text(maxPage);
+                pageN = parseInt($("#span1").text());
+                findAllNews($("#span1").val());
+            }
+            if(flag == "shang") {
+                if ($("#span1").val()>1) {
+                    $("#span1").val(--span1);
+                    $("#span1").text($("#span1").val());
+                    pageN = parseInt($("#span1").text());
+                    findAllNews($("#span1").val());
+                }else {
+                    $("#span1").val(1);
+                    $("#span1").text(1);
+                    pageN = parseInt($("#span1").text());
+                }
+            }
+            if(flag == "xia") {
+                // alert(maxPage);
+                if ($("#span1").val()<maxPage) {
+                    $("#span1").val(++span1);
+                    $("#span1").text($("#span1").val());
+                    pageN = parseInt($("#span1").text());
+                    findAllNews($("#span1").val());
+                }else {
+                    $("#span1").val(maxPage);
+                    $("#span1").text(maxPage);
+                    pageN = parseInt($("#span1").text());
+                }
+            }
+        }
+
+        function addDianJiLiang(xId){
+            $.ajax({
+                url:"/news/addDianJiLiang.do",
+                type:"get",
+                data:{xId:$(xId).attr("value"),uName:$("#loginName").attr("value")},
+                success:function (result) {
+                    $(xId).children("div").children("span").text(result);
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }
+
+        function findNewsByXId(xId) {
+            $("#pageText").hide();
+            $("#textSpace").text("内容详细")
+            $("#neiRongXiangXi").html("<font>\n" +
+                "                            当前位置:\n" +
+                "                            <a href='/index.html'>网站首页</a>&nbsp;>\n" +
+                "                            <button class='btn-sm btn btn-link' onclick='findAllNews(\""+pageN+"\")'> <div style='margin-top: 0;width: auto'><font color='#666666'><a href='/user/news/schoolNews.html'>校园新闻</a></font></div></button>&nbsp;>内容详细\n" +
+                "                        </font>");
+            $.ajax({
+                url:"/admin/findNews.do",
+                type:"get",
+                data:{xId:xId},
+                success:function (result) {
+                    $("#allText").html("");
+                    var news = result[0];
+                    var img;
+                    if (news.xTuPian!=null&&news.xTuPian!=''){
+                        img = "<img src='"+news.xTuPian+"' style='width: 300px;height: 400px' hspace='8'><br>"
+                    }else {
+                        img = ""
+                    }
+                    var time = new Date(news.xCreateTime);
+                    $("#allText").append("<br><br><div style='width: 70%;margin: 0 auto;text-align: center'>" +
+                        "<div style='text-align: center;'><font color='#008448' size='5'>"+news.xName+"</font>&nbsp;&nbsp;" +
+                        "<font color='#008448' size='3'>"+news.xType+"&nbsp;"+time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+"&nbsp;"+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds()+"</font></div>"+
+                        "    <hr style='border : 1px dashed green;' />" +
+                        "<div style='margin:0 auto;width:720px;text-align:left;text-indent: 2em;line-height: 30px;letter-spacing: 2px;'>"+news.xText+"</div>\n<br>" +
+                        img +
+                        "</div><br><br><br><br><br>")
+                }
+            })
+        }
+
+    </script>
+</head>
+<body>
+    <div th:include="bar/header::header_bar"></div>
+    <div style="height: 190px;width: 100%;background-color: blueviolet">
+        <img src="/img/banner/新闻中心banner.png" style="width: 100%;height: 190px;background-repeat: no-repeat">
+    </div>
+        <div style="width: 79%;height: auto;margin:0 auto;border:1px solid #000;">
+            <div style="width: 100%;height: 60px;float: left"></div>
+            <div style="border: solid 1px #cccccc;width: 100%;height: 40px;float: left">
+                <div style="float: left;height: 100%;width: 100px;background-color: #088038;text-align: center"><div style="margin-top: 8px"><font color="white" id="textSpace">校园新闻</font></div></div>
+                <div style="float: right;height: 100%;width: auto">
+                    <div style="margin-top: 8px" id="neiRongXiangXi">
+                            当前位置:
+                            <a th:href="@{/index.html}">网站首页</a>&nbsp;&gt;
+                            校园新闻&nbsp;&nbsp;
+                    </div>
+                </div>
+            </div>
+            <div style="width: 100%;height: 40px;float: left"></div>
+            <div id="allText">
+            <div id="hidden_show_controller">
+                <div onclick="showAndHidden(this)" style="width: auto;margin:0 auto;">
+                    <a href="javascript:0;">
+                        <div style="float: left;background-color: chocolate">什么什么事</div>
+                        <div style="float: right;background-color: wheat">-->></div>
+                    </a>
+                    <br>
+                </div>
+
+                <div class="hidden_show_text" style="display: block;width: 80%;margin:0 auto;" value="hidden">
+                    好多好多事好多好多事好多好多事好多好多事好多好多事好多好多事好多好多事好多好多事
+                    好多好多事好多好多事好多好多事好多好多事好多好多事好多好多事好多好多事好多好多事
+                </div>
+            </div>
+        </div>
+            <div id="pageText" style="margin: 0 auto;width: 34%">
+                <button onclick="changePage(this)" class="btn btn-link mypage" value="shou">首页</button>
+                <button onclick="changePage(this)" class="btn btn-link mypage" value="shang">上一页</button>
+                第&nbsp;<span id="span1" value="1">1</span>&nbsp;页
+                共&nbsp;<span id="maxPage" value="1">1</span>&nbsp;页
+                <button onclick="changePage(this)" class="btn btn-link mypage" value="xia">下一页</button>
+                <button onclick="changePage(this)" class="btn btn-link mypage" value="wei">尾页</button>
+            </div>
+        </div>
+    <br><br><br><br><br>
+    <div th:include="bar/footBar::foot_bar"></div>
+</body>
+</html>

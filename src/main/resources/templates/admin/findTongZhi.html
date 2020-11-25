@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>通知查询</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script>
+        function findTongZhi(tzName,tzLevel,tzTextFrom,tzTextFor) {
+            $.ajax({
+                url:"/admin/findTongZhi.do",
+                type:"get",
+                data:{tzName:tzName,tzLevel:tzLevel,tzTextFrom:tzTextFrom,tzTextFor:tzTextFor},
+                success:function (result) {
+                    $("#allText").html("");
+                    $("#allText").append("<div style=\"width: 100%;height: 50px;margin-top: 30px;\">\n" +
+                        "        <div style=\"float: left;width: 10%;height: 70px\"></div>\n" +
+                        "        <div style=\"float: left;margin-right: 25px\"><input type=\"text\" id=\"findByTzName\" placeholder=\"通知标题\"></div>\n" +
+                        "        <div style=\"float: left;margin-right: 25px\">级别:<select id=\"findByTzLevel\" style=\"width: 120px\">\n" +
+                        "            <option value=\"\">全部</option>\n" +
+                        "            <option value=\"1\">校级</option>\n" +
+                        "            <option value=\"2\">院级</option>\n" +
+                        "            <option value=\"3\">系级</option>\n" +
+                        "        </select> </div>\n" +
+                        "        <div style=\"float: left;margin-right: 25px\"><input type=\"text\" id=\"findByTzTextFrom\" placeholder=\"通知发出者\"></div>\n" +
+                        "        <div style=\"float: left\"><input type=\"text\" id=\"findByTzTextFor\" placeholder=\"通知适用者\"></div>\n" +
+                        "        <div style=\"float: left;margin-left: 20px\"><button onclick=\"find();clearNull()\" class=\"btn btn-sm\" style=\"background-color: #5cb85c\">查询</button></div>\n" +
+                        "    </div>\n" +
+                        "    <div>\n" +
+                        "        <table class=\"table table-striped\" border=\"1\">\n" +
+                        "            <thead>\n" +
+                        "            <tr>\n" +
+                        "                <td align='center'><b>序号</b></td>\n" +
+                        "                <td><b>通知标题</b></td>\n" +
+                        "                <td align='center'><b>通知内容</b></td>\n" +
+                        "                <td align='center'><b>通知级别</b></td>\n" +
+                        "                <td align='center'><b>通知发出者</b></td>\n" +
+                        "                <td align='center'><b>通知适用者</b></td>\n" +
+                        "                <td ><b>发出时间</b></td>\n" +
+                        "                <td><b>操作</b></td>\n" +
+                        "            </tr>\n" +
+                        "            </thead>\n" +
+                        "            <tbody id=\"tbody\"></tbody>\n" +
+                        "        </table>\n" +
+                        "    </div>");
+                    $("#tbody").html("");
+                    for (var i=0;i<result.length;i++){
+                        var tongZhi = result[i];
+                        var time = new Date(tongZhi.tzCreateTime);
+                        var tzLevel = tongZhi.tzLevel==1?"校级":tongZhi.tzLevel==2?"院级":"系级";
+                        $("#tbody").append("<tr>" +
+                            "<td align='center'>"+(i+1)+"</td>" +
+                            "<td>"+tongZhi.tzName+"</td>" +
+                            "<td align='center'><textarea readonly cols='40' rows='3'>"+tongZhi.tzText+"</textarea></td>" +
+                            "<td align='center'>"+tzLevel+"</td>" +
+                            "<td align='center'>"+tongZhi.tzTextFrom+"</td>" +
+                            "<td align='center'>"+tongZhi.tzTextFor+"</td>" +
+                            "<td>"+time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+"&nbsp;"+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds()+"</td>" +
+                            "<td>" +
+                            "<button class='btn btn-primary btn-sm' value='"+tongZhi.tzId+"' onclick='findTongZhiByTzId(this)'>编辑</button>&nbsp;" +
+                            "<button class='btn btn-danger btn-sm' value='"+tongZhi.tzId+"' onclick='deleteByTzId(this)'>删除</button>&nbsp;" +
+                            "</tr>")
+                    }
+                }
+            })
+        }
+
+        function findTongZhiByTzId(tzId){
+            $.ajax({
+                url:"/admin/findTongZhi.do",
+                type:"get",
+                data:{tzId:$(tzId).val()},
+                success:function (result) {
+                    var tongZhi = result[0];
+                    $("#allText").html("");
+                    $("#allText").append("<table style='margin-left: 10px' border=\"1\" class=\"table table-hover\" width=\"60%\">\n" +
+                        "                <tr>\n" +
+                        "                    <td colspan=\"2\"></td>\n" +
+                        "                </tr>\n" +
+                        "                <tr>\n" +
+                        "                    <td>通知标题:</td>\n" +
+                        "                    <td><input type=\"text\" name=\"tzName\" id=\"tzName\" value='"+tongZhi.tzName+"'><span id=\"msgName\"></span></td>\n" +
+                        "                </tr>\n" +
+                        "                <tr>\n" +
+                        "                    <td>通知抬头:</td>\n" +
+                        "                    <td><input type=\"text\" name=\"tzTextFor\" id=\"tzTextFor\" value='"+tongZhi.tzTextFor+"'><span id=\"msgTextFor\"></span></td>\n" +
+                        "                </tr>\n" +
+                        "                <tr>\n" +
+                        "                    <td>通知级别:</td>\n" +
+                        "                    <td>\n" +
+                        "                        <select name=\"tzLevel\" id=\"tzLevel\" style=\"width: 100px\">\n" +
+                        "                            <option value=\"1\">校级</option>\n" +
+                        "                            <option value=\"2\">院级</option>\n" +
+                        "                            <option value=\"3\">系级</option>\n" +
+                        "                        </select>\n" +
+                        "                    </td>\n" +
+                        "                </tr>\n" +
+                        "                <tr>\n" +
+                        "                    <td>通知正文:</td>\n" +
+                        "                    <td><textarea name=\"tzText\" cols=\"40\" rows=\"8\" placeholder=\"通知正文...\" id=\"tzText\">"+tongZhi.tzText+"</textarea><span id=\"msgText\"></span></td>\n" +
+                        "                </tr>\n" +
+                        "                <tr id=\"flagTr\">\n" +
+                        "                    <td>通知发出者:</td>\n" +
+                        "                    <td><input type=\"text\" name=\"tzTextFrom\" id=\"tzTextFrom\" value='"+tongZhi.tzTextFrom+"'><span id=\"msgTextFrom\"></span></td>\n" +
+                        "                </tr>\n" +
+                        "                <tr>\n" +
+                        "                    <td colspan=\"2\" align=\"center\">\n" +
+                        "                        <button class=\"btn btn-primary btn-sm\" value='"+tongZhi.tzId+"' onclick='updateTongZhiByTzId(this)' id=\"addbtn\">修改</button>\n" +
+                        "                    </td>\n" +
+                        "                </tr>\n" +
+                        "            </table>");
+                    $("#tzLevel option[value='"+tongZhi.tzLevel+"']").attr("selected", true);
+                }
+            })
+        }
+
+        function updateTongZhiByTzId(tzId){
+            $.ajax({
+                url:"/admin/updateTongZhiByTzId.do",
+                type:"post",
+                data:{tzId:$(tzId).val(),tzName:$("#tzName").val(),tzTextFor:$("#tzTextFor").val(),
+                    tzLevel:$("#tzLevel").val(),tzText:$("#tzText").val(),tzTextFrom:$("#tzTextFrom").val()},
+                success:function (result) {
+                    alert("修改成功！");
+                    findTongZhi(null,null,null,null);
+                },
+                error:function () {
+                    alert("系统异常！");
+                }
+            })
+        }
+
+        $(function () {
+            findTongZhi(null,null,null,null);
+        })
+
+        function deleteByTzId(tzId) {
+            if (confirm("确定要删除该条通知吗？")){
+                $.ajax({
+                    url:"/admin/deleteTongZhiByTzId.do",
+                    type:"get",
+                    data:{tzId:$(tzId).val()},
+                    success:function (result) {
+                        alert("删除成功！");
+                        $(tzId).parent("td").parent("tr").hide();
+                    }
+                })
+            }
+        }
+
+        function find() {
+            findTongZhi($("#findByTzName").val(),$("#findByTzLevel").val(),$("#findByTzTextFrom").val(),$("#findByTzTextFor").val())
+        }
+
+        function clearNull() {
+            $("#findByTzName").val("");
+            $("#findByTzLevel").val("");
+            $("#findByTzTextFrom").val("");
+            $("#findByTzTextFor").val("");
+        }
+
+    </script>
+</head>
+<body>
+<div id="allText">
+
+</div>
+</body>
+</html>

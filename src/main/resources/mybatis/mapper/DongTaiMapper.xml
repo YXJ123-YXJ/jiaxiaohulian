@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yxj.jiaxiaohulian.dao.DongTaiDao">
+    
+    <!--<resultMap id="ShiShengDongTaiMap" type="ShiShengDongTai">
+        <id column="dt_id" property="dtId"/>
+        <result column="dt_name" property="dtName"/>
+        <result column="dt_text" property="dtText"/>
+        <result column="u_name" property="uName"/>
+        <result column="dt_createtime" property="dtCreateTime"/>
+        <result column="dt_dianjiliang" property="dtDianJiLiang"/>
+        <result column="dt_tupian" property="dtTuPian"/>
+    </resultMap>-->
+    <sql id="ShiShengDongTaiAndDongTaiLiuLanSql">
+        dt.dt_id as dtId,dt.dt_name as dtName,dt.dt_text as dtText,dt.u_name as uName,
+        dt.dt_createtime as dtCreateTime,dt.dt_tupian as dtTuPian,count(l.dt_id) as dtDianJiLiang
+    </sql>
+    <select id="findAllDongDai" resultType="ShiShengDongTai">
+        select <include refid="ShiShengDongTaiAndDongTaiLiuLanSql"/> from shishengdongtai dt left join dongtailiulan l on
+        dt.dt_id=l.dt_id
+         <where>
+             <if test="uName != null and uName != ''">
+                 and dt.u_name=#{uName}
+             </if>
+         </where>
+        group by dt.dt_id order by dt.dt_createtime desc,dtDianJiLiang desc
+    </select>
+
+    <insert id="addDongTai" parameterType="ShiShengDongTai">
+        insert into shishengdongtai
+        values(null,#{dtName},#{dtText},#{uName},#{dtCreateTime},#{dtTuPian})
+    </insert>
+
+    <resultMap id="PingLunMap" type="PingLun">
+        <id column="p_id" property="pId"/>
+        <result column="p_text" property="pText"/>
+        <result column="p_createtime" property="pCreateTime"/>
+        <result column="u_name" property="uName"/>
+        <result column="bdt_id" property="bdtId"/>
+    </resultMap>
+    <sql id="PingLunSql">
+        p_id,p_text,p_createtime,u_name,bdt_id
+    </sql>
+    <select id="findPingLunByBdtId" resultMap="PingLunMap">
+        select <include refid="PingLunSql"/> from pinglun where bdt_id=#{bdtId}
+    </select>
+
+    <insert id="addPingLun">
+        insert into pinglun(<include refid="PingLunSql"/>) values(#{pId},#{pText},#{pCreateTime},#{uName},#{bdtId})
+    </insert>
+
+    <delete id="deleteDongTaiById">
+        delete from shishengdongtai where dt_id=#{dtId}
+    </delete>
+    <delete id="deletePingLunByBDtId">
+        delete from pinglun where bdt_id=#{bdtId}
+    </delete>
+    <delete id="deleteLiuLanByDtId">
+        delete from dongtailiulan where dt_id=#{dtId}
+    </delete>
+
+    <select id="findDianJiLiangByDtIdAndUName" resultType="map">
+        select u_name as uName,dt_id as dtId from dongtailiulan where u_name=#{uName} and dt_id=#{dtId}
+    </select>
+
+    <insert id="addDianJiLiang">
+        insert into dongtailiulan values(#{uName},#{dtId})
+    </insert>
+
+    <select id="findDianJiLiangByDtId" resultType="int">
+        select count(dt_id) as dtDianJiLiang from dongtailiulan where dt_id=#{dtId} group by dt_id
+    </select>
+
+</mapper>

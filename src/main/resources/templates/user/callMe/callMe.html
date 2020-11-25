@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>联系我们</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+</head>
+<body>
+<div th:include="bar/header::header_bar"></div>
+<div style="height: 190px;width: 100%;background-color: blueviolet">
+    <img src="/img/banner/联系我们新banner.png" style="width: 100%;height: 190px;background-repeat: no-repeat">
+</div>
+<div style="width: 100%;height: 60px;float: left"></div>
+<div style="margin-left: 15%;border: solid 1px #cccccc;width: 70%;height: 40px;float: left">
+    <div style="float: left;height: 100%;width: 100px;background-color: #088038;text-align: center"><div style="margin-top: 8px"><font color="white">联系我们</font></div></div>
+    <div style="float: right;height: 100%;width: auto">
+        <div style="margin-top: 8px">
+            <font>
+                当前位置:
+                <a th:href="@{/index.html}">网站首页</a>&nbsp;>
+                联系我们&nbsp;&nbsp;
+            </font>
+        </div>
+    </div>
+</div>
+<div style="width: 100%;height: 40px;float: left"></div>
+    <div>
+        <div style="width: 70%;margin: 0 auto;background-color: #e4e2e7;height: 600px;margin-top: 140px">
+            <div style="float: left;width: 40%;margin-left: 10%;background-color: #e4e2e7">
+                <br><br><br><br><br>
+                <div><font color="#03355B" size="7"><b>联系我们</b></font></div>
+                <div style="margin-top: 13px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#FC7400" size="6"><b>Contact&nbsp;&nbsp;Us</b></font></div>
+                <div style="margin-top: 13px">
+                    <div style="float: left">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="/img/small/电话图片蓝.png" width="50px" height="50px"></div>
+                    <div style="margin-top: 15px;float: left">&nbsp;&nbsp;<font color="#FC7400" size="5"><b>咨询热线:400-1234-1234</b></font></div>
+                </div><br><br>
+                <div style="margin-top: 20px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="http://wpa.qq.com/msgrd?v=3&uin=2477223983&site=qq&menu=yes"><font color="#FC7400" size="5">联系开发者&gt;&gt;</font></a>
+                </div>
+            </div>
+            <div style="float: right;width: 50%"><img src="/img/small/联系我们.png" width="450px" height="600px"></div>
+        </div>
+    </div>
+<br><br><br><br><br><br><br><br>
+    <div th:include="bar/footBar::foot_bar"></div>
+</body>
+</html>

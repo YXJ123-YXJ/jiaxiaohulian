@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yxj.jiaxiaohulian.dao.LiuYanDao">
+
+    <resultMap id="UserMap" type="User" extends="com.yxj.jiaxiaohulian.dao.LoginDao.userLoginMap"></resultMap>
+    <select id="findUserByUQuanXian" resultType="string">
+        select u_name as uName from user where u_quanxian=#{uQuanXian} and u_name!=#{uName} and u_shenhe in (1)
+    </select>
+
+    <insert id="addLiuYan">
+        insert into liuyan values(null,#{lText},#{uNameFrom},#{uNameTo},#{lHuiFu},#{lCreateTime},#{lFuJian})
+    </insert>
+
+    <resultMap id="LiuYanAndUserMap" type="LiuYan">
+        <id column="lId" property="lId"/>
+        <result column="lText" property="lText"/>
+        <result column="uNameFrom" property="uNameFrom"/>
+        <result column="uNameTo" property="uNameTo"/>
+        <result column="lCreateTime" property="lCreateTime"/>
+        <result column="lFuJian" property="lFuJian"/>
+        <result column="lHuiFu" property="lHuiFu"/>
+        <association property="user" javaType="User">
+            <id column="user_uName" property="uName"/>
+            <result column="user_uPwd" property="uPwd"/>
+            <result column="user_uQuanXian" property="uQuanXian"/>
+            <result column="user_uSex" property="uSex"/>
+            <result column="user_uAge" property="uAge"/>
+            <result column="user_uDiZhi" property="uDiZhi"/>
+            <result column="user_uTouXiang" property="uTouXiang"/>
+            <result column="user_uPhone" property="uPhone"/>
+            <result column="user_uEmail" property="uEmail"/>
+            <result column="user_uIdCard" property="uIdCard"/>
+            <result column="user_uAddTime" property="uAddTime"/>
+            <result column="user_usName" property="usName"/>
+            <result column="user_utName" property="utName"/>
+            <result column="user_ujName" property="ujName"/>
+            <result column="user_uRole" property="uRole"/>
+            <result column="user_uSalt" property="uSalt"/>
+        </association>
+    </resultMap>
+    <sql id="LiuYanSql">
+      l.l_id as lId,l.l_text as lText,l.u_namefrom as uNameFrom,l.u_nameto as uNameTo,
+      l.l_huifu as lHuiFu,l.l_createtime as lCreateTime,l.l_fujian as lFuJian,
+      u.u_name as user_uName,u.u_pwd as user_uPwd,u.u_quanxian as user_uQuanXian,u.u_sex as user_uSex,
+      u.u_age as user_uAge,u.u_dizhi as user_uDiZhi,u.u_touxiang as user_uTouXiang,u.u_phone as user_uPhone,
+      u.u_email as user_uEmail,u.u_idcard as user_uIdCard,u.u_addtime as user_uAddTime,
+      u.us_name as user_usName,u.ut_name as user_utName,u.uj_name as user_ujName,u.u_role as user_uRole,u.u_salt as user_uSalt
+    </sql>
+    <!--我留的言-->
+    <select id="findLiuYanByUNameFrom" resultMap="LiuYanAndUserMap">
+        select <include refid="LiuYanSql"/> from user u,liuyan l
+        <where>
+            and l.u_namefrom=u.u_name
+            <if test="uNameFrom!=null and uNameFrom!=''">
+                and l.u_namefrom=#{uNameFrom}
+            </if>
+        </where>
+        order by l.l_createtime desc
+    </select>
+    <!--别人给我留的言-->
+    <select id="findLiuYanByUNameTo" resultMap="LiuYanAndUserMap">
+        select <include refid="LiuYanSql"/> from user u,liuyan l
+        <where>
+            and l.u_nameto=u.u_name
+            <if test="uNameTo!=null and uNameTo!=''">
+                and l.u_nameto=#{uNameTo}
+            </if>
+        </where>
+        order by l.l_createtime desc
+    </select>
+
+    <select id="findUNameFromMsg" resultType="User">
+        select u_name as uName,u_phone as uPhone,u_email as uEmail from user where u_name=#{uNameFrom}
+    </select>
+
+    <update id="huiFuLiuYan">
+        update liuyan set l_huifu=#{lHuiFu} where l_id=#{lId}
+    </update>
+
+</mapper>

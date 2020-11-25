@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用戶注冊</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+
+    <style type="text/css">
+        body{background: url(/bg/2.png) no-repeat center 0}
+        font{color:darkgray}
+        tr{height:60px}
+    </style>
+
+    <script>
+
+        function findYXiByYXueYuan(){
+            $("#yXueYuan").change(function () {
+                if ($("#yXueYuan").val()!=null&&$("#yXueYuan").val()!="0") {
+                    findYuanXi($("#yXueYuan").val(), null, "yXi");
+                }
+            })
+        }
+
+        function findYClazzByYXi(){
+            $("#yXi").change(function () {
+                if ($("#yXueYuan").val()!=null&&$("#yXueYuan").val()!="0"&&$("#yXi").val()!=null&&$("#yXi").val()!="0") {
+                    findYuanXi($("#yXueYuan").val(), $("#yXi").val(), "yClazz");
+                }
+            })
+        }
+
+        function jiaoYanYuanXi(){
+            $("#yXueYuan").change(function () {
+                $("#yClazz").html("");
+            })
+        }
+
+        function findAllUtName(){
+            $("#utName").html("");
+            if ($("#uQuanXian").val()==3) {
+                $.ajax({
+                    url: "/findAllUtName.do",
+                    type: "get",
+                    success:function (result) {
+                        $("#utName").append("<option value='0' selected='selected'>--请选择辅导员姓名--</option>");
+                        for (var i=0;i<result.length;i++){
+                            $("#utName").append("<option value='"+result[i]+"'>"+result[i]+"</option>");
+                        }
+                    },
+                    error:function () {
+                        alert("系统异常");
+                    }
+                })
+            }
+        }
+
+       $(function () {
+           //查询和处理院系信息
+           findYuanXi(null,null,null);
+           findYXiByYXueYuan();
+           findYClazzByYXi();
+           jiaoYanYuanXi();
+
+
+       })
+
+        function findYuanXi(yXueYuan,yXi,flag){
+            $.ajax({
+                url:"/findYuanXi.do",
+                type:"get",
+                data:{yXueYuan:yXueYuan,yXi:yXi},
+                success:function (result) {
+                    if (flag==null){
+                        $("#yXueYuan").html("");
+                        $("#yXueYuan").append("<option value='0'>--请选择学院--</option>");
+                        for (var i=0;i<result.length;i++) {
+                            $("#yXueYuan").append("<option value='"+result[i]+"'>"+result[i]+"</option>");
+                        }
+                    }
+                    if (flag=="yXi"){
+                        $("#yXi").html("");
+                        $("#yXi").append("<option value='0'>--请选择系别--</option>");
+                        for (var i=0;i<result.length;i++) {
+                            $("#yXi").append("<option value='"+result[i]+"'>"+result[i]+"</option>");
+                        }
+                    }
+                    if (flag=="yClazz"){
+                        $("#yClazz").html("");
+                        $("#yClazz").append("<option value='0'>--请选择班级--</option>");
+                        for (var i=0;i<result.length;i++) {
+                            $("#yClazz").append("<option value='"+result[i]+"'>"+result[i]+"</option>");
+                        }
+                    }
+                }
+            })
+        }
+
+        $(function () {
+
+        })
+
+        //根据用户选择的权限显示对应的需要填写的项
+        function showAndHiddenByUQuanXian() {
+            var uQuanXian = $("#uQuanXian").val();
+            if (uQuanXian==1){
+                $("#yXueYuanTr").removeAttr("hidden");
+                $("#yXueYuanTr").show();
+                $("#yXueYuan").removeAttr("hidden");
+                $("#yXueYuan").show();
+                $("#yXi").removeAttr("hidden");
+                $("#yXi").show();
+                $("#ujNameTr").hide();
+                $("#utNameTr").hide();
+                $("#yClazz").hide();
+            }
+            if (uQuanXian==2){
+                $("#usNameTr").removeAttr("hidden");
+                $("#usNameTr").show();
+                $("#yXueYuanTr").hide();
+                $("#utNameTr").hide();
+                $("#ujNameTr").hide();
+            }
+            if (uQuanXian==3){
+                $("#yXueYuanTr").removeAttr("hidden");
+                $("#yXueYuanTr").show();
+                $("#yXueYuan").removeAttr("hidden");
+                $("#yXueYuan").show();
+                $("#yXi").removeAttr("hidden");
+                $("#yXi").show();
+                $("#yClazz").removeAttr("hidden");
+                $("#yClazz").show();
+                $("#utNameTr").removeAttr("hidden");
+                $("#utNameTr").show();
+                $("#usNameTr").hide();
+                $("#ujNameTr").removeAttr("hidden");
+                $("#ujNameTr").show();
+                findAllUtName();
+            }
+        }
+
+    </script>
+</head>
+
+<body onload="createCode()">
+
+<!--    <div>-->
+        <!--<table class="table table-hover" border="1" bordercolor="#cccccc" align="center" style="width: 60%">
+            <tr><td colspan="2">用戶注冊</td></tr>
+        </table>-->
+
+        <!--<table border="1" align="center" width="500">
+            <tr>
+                <td><label for="username">用户名</label></td>
+                <td><input type="text" name="username" id="username"></td>
+            </tr>
+
+            <tr>
+                <td><label for="password">密码</label></td>
+                <td><input type="password" name="password" id="password" ></td>
+            </tr>
+
+            <tr>
+                <td><label for="email">Email</label></td>
+                <td><input type="email" name="email" id="email"></td>
+            </tr>
+
+            <tr>
+                <td><label for="name">姓名</label></td>
+                <td><input type="text" name="name" id="name"></td>
+            </tr>
+
+            <tr>
+                <td><label for="tel">手机号</label></td>
+                <td><input type="text" name="tel" id="tel"></td>
+            </tr>
+
+            <tr>
+                <td><label>性别</label></td>
+                <td><input type="radio" name="gender" value="male"> 男
+                    <input type="radio" name="gender" value="female"> 女
+                </td>
+            </tr>
+
+            <tr>
+                <td><label for="birthday">出生日期</label></td>
+                <td><input type="date" name="birthday" id="birthday"></td>
+            </tr>
+
+            <tr>
+                <td>&lt;!&ndash;<label for="checkcode">验证码</label>&ndash;&gt;
+                    <label class="col-sm-2 control-label">验证码</label></td>
+                <td><input type="text" id="code" value="" style="width:100px;" onblur="checkCode()" />&nbsp;&nbsp;&nbsp;
+                    <span id="codeSpan" style="background-image: url(img/雪山.jpg);color: black;" onclick="createCode()">
+						</span>
+                    <span id="codeSpan2"></span>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td colspan="2" align="center">
+                    <button>註冊</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+-->
+
+
+<form action="/userRegister.do" method="post" onsubmit="return checkSub()" enctype="multipart/form-data">
+    <table border="0px" cellspacing="0" cellpadding="2px" align="center" class="table table-hover" style="width: 50%;background-color: white;margin-top: 20px">
+        <thead style="background-color: #3fc3ee"><tr><td colspan="2"><h3 align="center" style="height: 50px;margin-top: 10px;">注册界面</h3></td></tr></thead>
+        <tr>
+            <input type="hidden" id="uNameFlag" value="">
+            <td width="80px">用户名：</td>
+            <td width="400px">
+                <input type="text" name="uName" id="uName" value="" onblur="checkUname()" alt="用户名"/>
+                <span id="uNameSpan">
+<!--							<font></font>-->
+						</span>
+            </td>
+        </tr>
+        <tr>
+            <td>密码：</td>
+            <td>
+                <input type="password" name="uPwd" id="pwd" value="" onblur="checkPwd()"/>
+                <span id="pwdSpan">
+						<font>要求6-8位密码，首位必须为字母</font>
+						</span>
+            </td>
+        </tr>
+        <tr>
+            <td>确认密码：</td>
+            <td>
+                <input type="password" name="pwd2" id="pwd2" value="" onblur="checkPwd2()"/>
+                <span id="pwd2Span"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>邮箱：</td>
+            <td>
+                <input type="text" name="uEmail" id="mail" value="" alt="邮箱" onblur="checkEmail()"/>
+                <span id="mailSpan"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>手机号：</td>
+            <td>
+                <input type="text" name="uPhone" id="phone" value="" alt="手机号" onblur="checkPhone()"/>
+                <span id="phoneSpan"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>年龄：</td>
+            <td>
+                <input type="number" name="uAge" id="uAge" value="" alt="年龄" onblur="checkPhone()"/>
+                <span id="uAgeSpan"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>性别</td>
+            <td>
+                男<input type="radio" name="uSex" value="男"checked="checked" />
+                女<input type="radio" name="uSsex" value="女" />
+            </td>
+        </tr>
+        <tr>
+            <td>地址：</td>
+            <td>
+                <input type="text" name="uDiZhi" id="uDiZhi" value="" alt="地址"/>
+                <span id="uDiZhiSpan"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>头像：</td>
+            <td>
+                <input type="file" name="file" id="uTouXiang" value="" alt="头像" onchange="checkFile()"/>
+                <span id="uTouXiangSpan"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>爱好</td>
+            <td>
+                读书<input type="checkbox" name="fav" value="1" onclick="checkFav()"/>
+                听音乐<input type="checkbox" name="fav" value="2" onclick="checkFav()" />
+                看电影<input type="checkbox" name="fav" value="3" onclick="checkFav()" />
+                打羽毛球<input type="checkbox" name="fav" value="4" onclick="checkFav()" /><br />
+                其他<input type="checkbox" name="fav" value="5" onclick="checkFav()" />
+                <span id="favSpan"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>权限：</td>
+            <td>
+                <select name="uQuanXian" id="uQuanXian" onchange="checkUQuanXian();showAndHiddenByUQuanXian()">
+                    <option value="0" selected="selected">--请选择需要注册的用户身份--</option>
+                    <option value="1">辅导员</option>
+                    <option value="2">家长</option>
+                    <option value="3">学生</option>
+                </select>
+                <span id="uQuanXianSpan"></span>
+            </td>
+        </tr>
+        <tr id="yXueYuanTr" hidden>
+            <td>院系：</td>
+            <td>
+                <select name="uYuanXi" id="yXueYuan" hidden></select>
+                <select name="yXi" id="yXi" hidden></select>
+                <select name="uClazz" id="yClazz" hidden></select>
+                <span id="uYuanXiSpan"></span>
+            </td>
+        </tr>
+        <tr id="utNameTr" hidden>
+            <td>辅导员姓名：</td>
+            <td>
+                <select name="utName" id="utName" onchange="checkUtName()"></select>
+                <span id="utNameSpan"></span>
+            </td>
+        </tr>
+        <tr id="ujNameTr" hidden>
+            <td>家长姓名：</td>
+            <td>
+                <input type="text" name="ujName" id="ujName" value="" alt="家长姓名" onblur="checkUjName()"/>
+                <span id="ujNameSpan"></span>
+            </td>
+        </tr>
+        <tr id="usNameTr" hidden>
+            <td>学生姓名：</td>
+            <td>
+                <input type="text" name="usName" id="usName" value="" alt="家长姓名" onblur="checkUsName()"/>
+                <span id="usNameSpan"></span>
+            </td>
+        </tr>
+        <tr align="center">
+            <td colspan="2"><a href="/userXieYi.html">是否同意本系统的用户协议</a>
+                <input type="checkbox" name="agree" id="agree" value="" onclick="checkAgree()" />
+            </td>
+
+        </tr>
+        <tr>
+            <td>验证码：</td>
+            <td>
+                <input type="text" id="code" value="" style="width:100px;" onblur="checkCode()" />&nbsp;&nbsp;&nbsp;
+                <span id="codeSpan" style="background-image: url('/img/favicon.ico');color: white" onclick="createCode()">
+						</span>
+                <span id="codeSpan2"></span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center">
+                <input type="submit" id="sub" name="sub" value="注册" disabled="disabled" />
+            </td>
+        </tr>
+    </table>
+</form>
+
+
+</body>
+
+</html>
+
+<script type="text/javascript">
+    //常见验证码
+    function createCode(){
+        //创建随机4位数字，math.floor向下取整
+        var code=Math.floor(Math.random()*9000+1000);
+        //获取元素对象
+        var  span=document.getElementById("codeSpan");
+        //将数字存放到span中
+        span.innerHTML=code;
+        //给span添加背景图片
+    }
+    //验证用户名
+    function checkUname(){
+        //获取用户获得用户名信息
+        var uName=document.getElementById("uName").value;
+        //创建校验规则,用户名2-4个
+        /*var reg=/^[\u4e00-\u9fa5]{2,4}$/*/
+        //获取span对象
+        var uNameSpan=document.getElementById("uNameSpan");
+        //开始交验
+        if(uName==""||uName==null){
+            //输入校验结果
+            uNameSpan.innerHTML="*用户名不能为空";
+            uNameSpan.style.color="red";
+            return false;
+        }/*else if(reg.test(uname)){
+            //输入校验结果
+            unameSpan.innerHTML="*用户名通过";
+            unameSpan.style.color="green";
+            return true;
+        }*/else {
+            $.ajax({
+                url:"/checkUNameExsit.do",
+                type:"get",
+                data:{uName:uName},
+                success:function (result) {
+                    if (result=="success"){
+                        //输入校验结果
+                        uNameSpan.innerHTML="*用户名已存在"
+                        uNameSpan.style.color="red";
+                        $("#uNameFlag").attr("value","fail");
+                    }else {
+                        //输入校验结果
+                        uNameSpan.innerHTML="*用户名通过";
+                        uNameSpan.style.color="green";
+                        $("#uNameFlag").attr("value","success");
+                    }
+                }
+            });
+            var flag = $("#uNameFlag").attr("value");
+            if (flag=="success"){
+                return true;
+            }else {
+                return false;
+            }
+        }
+    }
+    //验证密码
+    function checkPwd(){
+        //获取用户获得用户名信息
+        var upwd=document.getElementById("pwd").value;
+        //创建校验规则,密码要求6-8位，首位为字母，后面5-7位是数字
+        var reg=/^[a-z]\w{5,7}$/;
+        //获取span对象
+        var span=document.getElementById("pwdSpan");
+        //开始交验
+        if(upwd==""||upwd==null){
+            //输入校验结果
+            span.innerHTML="*密码不能为空";
+            span.style.color="red";
+            return false;
+        }else if(reg.test(upwd)){
+            //输入校验结果
+            span.innerHTML="*密码通过";
+            span.style.color="green";
+            return true;
+        }else{
+            //输入校验结果
+            span.innerHTML="*密码格式不符"
+            span.style.color="red";
+            return false;
+        }
+        //第一次密码为a123456，第二次密码为a1234567，则修改的第一次密码，确认密码也会重新校验
+        // checkPwd2();
+    }
+    //校验确认密码
+    function checkPwd2(){
+        //获取第一次校验密码
+        var pwd=document.getElementById("pwd").value;
+        //获取确认密码
+        var pwd2=document.getElementById("pwd2").value;
+        //获取span对象
+        var span=document.getElementById("pwd2Span");
+        //比较前两次密码是否相同
+        if( pwd2==""|| pwd2==null){
+            //输入校验结果
+            span.innerHTML="*密码不能为空";
+            span.style.color="red";
+            return false;
+        }else if(pwd===pwd2){
+            //输入校验结果
+            span.innerHTML="*密码通过";
+            span.style.color="green";
+            return true;
+        }else{
+            //输入校验结果
+            span.innerHTML="*密码不同，请重新输入"
+            span.style.color="red";
+            return false;
+        }
+    }
+    //校验手机号
+    function checkPhone(){
+        return checkField("phone",/^1[3456789]\d{9}$/);
+    }
+    //校验邮箱
+    function checkEmail(){
+        return checkField("mail",/^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/)
+    }
+    //校验籍贯
+    function checkUQuanXian(){
+        //获取用户选择的数据
+        var sel=document.getElementById("uQuanXian").value;
+        //获取span
+        var span=document.getElementById("uQuanXianSpan");
+        //校验，只要不为value="0"即可
+        if(sel!=0){
+            span.innerHTML="身份选择成功";
+            span.style.color="green";
+            return true;
+        }else{
+            span.innerHTML="请选择身份";
+            span.style.color="red";
+            return false;
+        }
+    }
+    //校验院系
+    function checkYuanXi(){
+        //获取用户选择的数据
+        var yXueYuan=document.getElementById("yXueYuan").value;
+        var yXi=document.getElementById("yXi").value;
+        var yClazz=document.getElementById("yClazz").value;
+        //获取span
+        var span=document.getElementById("uYuanXiSpan");
+        //校验，只要不为value="0"即可
+        var flag = $("#uQuanXian").val()==1?yXueYuan!='0'&&yXi!='0':yXueYuan!='0'&&yXi!='0'&&yClazz!='0';
+        if(flag){
+            span.innerHTML="选择成功";
+            span.style.color="green";
+            return true;
+        }else{
+            span.innerHTML="选择不完整";
+            span.style.color="red";
+            return false;
+        }
+    }
+    //校验辅导员姓名
+    function checkUtName(){
+        //获取用户选择的数据
+        var sel=document.getElementById("utName").value;
+        //获取span
+        var span=document.getElementById("utNameSpan");
+        //校验，只要不为value="0"即可
+        if(sel!=0){
+            span.innerHTML="选择成功";
+            span.style.color="green";
+            return true;
+        }else{
+            span.innerHTML="请选择辅导员";
+            span.style.color="red";
+            return false;
+        }
+    }
+    //校验家长姓名是否为空
+    function checkUjName(){
+        //获取用户选择的数据
+        var sel=document.getElementById("ujName").value;
+        //获取span
+        var span=document.getElementById("ujNameSpan");
+        //校验，只要不为value="0"即可
+        if(sel!=null&&sel!=""){
+            span.innerHTML="家长姓名已填写";
+            span.style.color="green";
+            return true;
+        }else{
+            span.innerHTML="家长姓名未填写";
+            span.style.color="red";
+            return false;
+        }
+    }
+    //校验学生姓名是否为空
+    function checkUsName(){
+        //获取用户选择的数据
+        var sel=document.getElementById("usName").value;
+        //获取span
+        var span=document.getElementById("usNameSpan");
+        //校验，只要不为value="0"即可
+        if(sel!=null&&sel!=""){
+            span.innerHTML="学生姓名已填写";
+            span.style.color="green";
+            return true;
+        }else{
+            span.innerHTML="学生姓名未填写";
+            span.style.color="red";
+            return false;
+        }
+    }
+    //校验爱好选择
+    function checkFav(){
+        //获取所有的爱好
+        var favs=document.getElementsByName("fav");
+        //获取span对象
+        var span=document.getElementById("favSpan");
+        //遍历
+        for(var i=0;i<favs.length;i++){
+            if(favs[i].checked){
+                span.innerHTML="*爱好通过";
+                span.style.color="green";
+                return true;
+            }
+        }
+        //这段代码一直会被执行，所以当选择过爱好后，直接return结束即可
+        span.innerHTML="爱好至少选择一项";
+        span.style.color="red";
+        return false;
+    }
+    //校验确认验证码------------------
+    function checkCode(){
+        //获取用户输入验证码
+        var code=document.getElementById("code").value;
+        //获取随机验证码
+        var code2=document.getElementById("codeSpan").innerHTML;
+        //获取span对象
+        var span=document.getElementById("codeSpan2");
+        //比较前两次密码是否相同
+        if( code==""|| code==null){
+            //输入校验结果
+            span.innerHTML="*验证码不能为空";
+            span.style.color="red";
+            createCode();
+            return false;
+        }else if(code==code2){
+            //输入校验结果
+            span.innerHTML="*验证码通过";
+            span.style.color="green";
+            return true;
+        }else{
+            //输入校验结果
+            span.innerHTML="*验证码错误"
+            span.style.color="red";
+            createCode();
+            return false;
+        }
+    }
+    //校验是否同意公司协议
+    function checkAgree(){
+//							//获取提交按钮的disable属性,选中框后disabled的值为1.
+//							alert(document.getElementById("sub").disabled);
+        document.getElementById("sub").disabled=!document.getElementById("agree").checked;
+    }
+    //校验头像图片格式及大小
+    function checkFile(obj){
+        var obj = document.getElementById("uTouXiang");
+        if (obj.value==null||obj.value==""){
+            return true;
+        }
+        var photoExt=obj.value.substr(obj.value.lastIndexOf(".")).toLowerCase();//获得文件后缀名
+        console.log(typeof (photoExt),photoExt)
+        if((photoExt==".jpg")||(photoExt==".jpeg")||(photoExt==".png")){
+            var fileSize = 0;
+            var isIE = /msie/i.test(navigator.userAgent) && !window.opera;
+            if (isIE && !obj.files) {
+                var filePath = obj.value;
+                var fileSystem = new ActiveXObject("Scripting.FileSystemObject");
+                var file = fileSystem.GetFile (filePath);
+                fileSize = file.Size;
+            }else {
+                fileSize = obj.files[0].size;
+                console.log(fileSize)
+            }
+            fileSize=Math.round(fileSize/1024*100)/100; //单位为KB
+            console.log(fileSize)
+            if(fileSize>=3072){
+                document.getElementById("uTouXiangSpan").innerHTML="*照片最大尺寸为3M，请重新上传!";
+                document.getElementById("uTouXiangSpan").style.color="red";
+                // $("#uTouXiangSpan").html("");
+                // $("#uTouXiangSpan").append("<font color='red'>照片最大尺寸为3M，请重新上传!</font>");
+                return false;
+            }else {
+                $("#uTouXiangSpan").html("<font color='green'>✔</font>");
+                return true;
+            }
+        }else{
+            document.getElementById("uTouXiangSpan").innerHTML="*请上传后缀名为jpg,jpeg,png格式的照片!";
+            document.getElementById("uTouXiangSpan").style.color="red";
+            // $("#uTouXiangSpan").html("");
+            // $("#uTouXiangSpan").append("<font color='red'>请上传后缀名为jpg,jpeg,png格式的照片!</font>");
+            return false;
+        }
+    }
+
+    //提交判断
+    function checkSub(){
+        checkUname();
+        checkPwd();
+        checkPwd2();
+        checkEmail();
+        checkPhone();
+        checkFav();
+        checkUQuanXian();
+        checkCode();
+        checkFile();
+        if ($("#uQuanXian").val()==1||$("#uQuanXian").val()==3) {
+            checkYuanXi();
+        }
+        if ($("#uQuanXian").val()==3) {
+            checkUtName();
+            checkUjName();
+        }
+        if ($("#uQuanXian").val()==2) {
+            checkUsName();
+        }
+
+        if ($("#uQuanXian").val()==1){
+            var result = checkUname()&&checkPwd()&&checkPwd2()&&checkEmail()&&checkPhone()&&checkFav()&&checkUQuanXian()&&checkCode()&&checkYuanXi()&&checkFile();
+            if (result){
+                alert("注册成功，请等待信息审核！");
+            }
+            //此处最好把checkFile()写最后，要不然验证的时候写checkFile()后的方法不管验证通不通过都能成功提交
+            return result;
+        }
+        if ($("#uQuanXian").val()==2){
+            var result = checkUsName()&&checkUname()&&checkPwd()&&checkPwd2()&&checkEmail()&&checkPhone()&&checkFav()&&checkUQuanXian()&&checkCode()&&checkFile();
+            if (result){
+                alert("注册成功，请等待信息审核！");
+            }
+            //此处最好把checkFile()写最后，要不然验证的时候写checkFile()后的方法不管验证通不通过都能成功提交
+            return result;
+        }
+        if ($("#uQuanXian").val()==3){
+            var result = checkUname()&&checkPwd()&&checkPwd2()&&checkEmail()&&checkPhone()&&checkFav()&&checkUQuanXian()&&checkCode()&&checkUtName()&&checkUjName()&&checkYuanXi()&&checkFile();
+            if (result){
+                alert("注册成功，请等待管理员审核！");
+            }
+            //此处最好把checkFile()写最后，要不然验证的时候写checkFile()后的方法不管验证通不通过都能成功提交
+            return result;
+        }
+        return false;
+    }
+    //----------------------------------------------------------------------------------------------------------------------
+    //封装校验：相同的保留，不同的传参
+    function checkField(id,reg){
+        //获取用户数据
+        var inp=document.getElementById(id);
+        var	va=inp.value;
+        var	alt=inp.alt;
+        //创建校验规则
+        //获取span对象
+        var span=document.getElementById(id+"Span");
+        //开始校验
+        if(va==""||va==null){
+            //输入校验结果
+            span.innerHTML="*"+alt+"不能为空";
+            span.style.color="red";
+            return false;
+        }else if(reg.test(va)){
+            //输入校验结果
+            span.innerHTML="*"+alt+"通过";
+            span.style.color="green";
+            return true;
+        }else{
+            //输入校验结果
+            span.innerHTML="*"+alt+"格式不符";
+            span.style.color="red";
+            return false;
+        }
+    }
+</script>

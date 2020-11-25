@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>网站首页</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+
+    <script>
+
+        function showAndHidden(mm) {
+            var show_hidden = $(mm).next().attr("value");
+            if (show_hidden=="show"){
+                $(mm).next().attr("value","hidden");
+                $(mm).next().hide();
+                return;
+            }else {
+                $(mm).next().attr("value","show");
+                $(mm).next().show();
+                return;
+            }
+        }
+
+        function addNewDianJiLiang(xId){
+            $.ajax({
+                url:"/news/addDianJiLiang.do",
+                type:"get",
+                data:{xId:$(xId).attr("value"),uName:$("#loginName").attr("value")},
+                success:function (result) {
+                    $(xId).children("div").children("span").text(result);
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }
+
+        function addDongTaiDianJiLiang(dtId){
+            $.ajax({
+                url:"/dongTai/addDianJiLiang.do",
+                type:"get",
+                data:{dtId:$(dtId).attr("value"),uName:$("#loginName").attr("value")},
+                success:function (result) {
+                    $(dtId).children("div").children("span").text(result);
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }
+
+        function showNews(){
+            $.ajax({
+                url:"/news/findAllNews.do",
+                type:"get",
+                data:{pageNum:1},
+                success:function (result) {
+                    var list1 = result["list1"];
+                    $("#showText").html("");
+                    $("#showText").append("<div style='height: 20px;width: 100%;float: left'></div>")
+                    for (var i=0;i<list1.length;i++){
+                        var news = list1[i];
+                        $("#showText").append("<div onclick='findNewsByXId(\""+news.xId+"\");addNewDianJiLiang(this);' value='"+news.xId+"' style='width: 80%;margin:0 auto;'>" +
+                            "                <div style='float: left;'><font><b>"+news.xName+"</b></font>"+
+                            "&nbsp;&nbsp;"+"<font size='1'>点击量:"+"<span>"+news.xDianJiLiang+"</span></font>"+
+                            "&nbsp;&nbsp;"+"</div>" +
+                            "                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='javascript:0;'>-->></a></div>" +
+                            "<div style='float: right'>"+new Date(news.xCreateTime).getFullYear()+"-"+
+                            (new Date(news.xCreateTime).getMonth()+1)+"-"+new Date(news.xCreateTime).getDate()+"&nbsp;"+new Date(news.xCreateTime).getHours()
+                            +":"+new Date(news.xCreateTime).getMinutes()+":"+new Date(news.xCreateTime).getSeconds()+"</div>"+
+                            "                <br>" +
+                            "            </div>" +
+                            "            <div class='hidden_show_text' style='display: none;width: 80%;margin:0 auto;' value='hidden'>"
+                            +news.xText+
+                            "            </div><hr>");
+                    }
+                    // $("#showText").append("<br><br><br><br><br>")
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }
+
+        function findNewsByXId(xId) {
+            $("#allText").html("");
+            $("#head").removeAttr("hidden")
+            $.ajax({
+                url:"/admin/findNews.do",
+                type:"get",
+                data:{xId:xId},
+                success:function (result) {
+                    $("#allText").html("");
+                    var news = result[0];
+                    var img;
+                    if (news.xTuPian!=null&&news.xTuPian!=''){
+                        img = "<img src='"+news.xTuPian+"' style='width: 300px;height: 400px' hspace='8'><br>"
+                    }else {
+                        img = ""
+                    }
+                    var time = new Date(news.xCreateTime);
+                    $("#allText").append("<br><br><div style='width: 70%;margin: 0 auto;text-align: center'>" +
+                        "<div style='text-align: center;'><font color='#008448' size='5'>"+news.xName+"</font>&nbsp;&nbsp;" +
+                        "<font color='#008448' size='3'>"+news.xType+"&nbsp;"+time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+"&nbsp;"+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds()+"</font></div>"+
+                        "    <hr style='border : 1px dashed green;' />" +
+                        "<div style='margin:0 auto;width:720px;text-align:left;text-indent: 2em;line-height: 30px;letter-spacing: 2px'>"+news.xText+"</div>\n<br>" +
+                        img +
+                        "</div><br><br><br><br><br>")
+                }
+            })
+        }
+
+        $(function () {
+            showNews();
+            $("#schoolNews").click(function () {
+                showNews();
+            })
+            $("#dongTai").click(function () {
+                $.ajax({
+                    url:"/dongTai/findAllDongTai.do",
+                    type:"get",
+                    data:{pageNum:1},
+                    success:function (result) {
+                        var list1 = result["list1"];
+                        // alert(result["maxPage"]);
+                        $("#showText").html("");
+                        $("#showText").append("<div style='height: 20px;width: 100%;float: left'></div>")
+                        for (var i=0;i<list1.length;i++){
+                            var dongtai = list1[i];
+                            var time = new Date(dongtai.dtCreateTime);
+                            $("#showText").append(
+                                "<div style='float: left;width: 100%;margin-left: 10%;'>" +
+                                "<div onclick='showAndHidden(this);addDongTaiDianJiLiang(this);' value='"+dongtai.dtId+"' style='width: 80%;float: bottom'>" +
+                                "   <div style='float: left;' onclick='showPingLun(this);'>"+
+                                "   <input type='hidden' name='bdtId' value='"+dongtai.dtId+"'>"+
+                                "<font color='green'><b>"+dongtai.dtName+"</b></font>&nbsp;&nbsp;"+
+                                dongtai.uName+"&nbsp;&nbsp;"+
+                                "       <font size='1'>浏览量:<span>"+dongtai.dtDianJiLiang+"</span></font>&nbsp;&nbsp;"+
+                                "   </div>" +
+                                "   <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='javascript:0;'> -->></a>" + "   </div>" +
+                                "<div style='float: right'>"+time.getFullYear()+"-"+
+                                (time.getMonth()+1)+"-"+time.getDate()+"&nbsp;"+time.getHours()
+                                +"      :"+time.getMinutes()+":"+time.getSeconds()+"</div>"+
+                                "   <br><hr>" +
+                                "   </div>" +
+
+                                "   <div class='hidden_show_text' style='display: none;width: 80%;margin:0 auto;' value='hidden'>"+
+                                "       <div>"+imgShow(dongtai.dtTuPian)+"</div>"+
+                                "<div style='text-indent: 2em;line-height: 30px;letter-spacing: 2px;margin-right: 30px'>"+dongtai.dtText+"</div><br><br>评论区"+"&nbsp;&nbsp;&nbsp;&nbsp;"+
+                                "<button class='btn btn-link' data-toggle='modal' data-target='#myModal' onclick='getBdtId("+dongtai.dtId+")'>发表评论</button>"+
+                                "       <div id='_"+dongtai.dtId+"'>" +
+                                "   </div><br>"+
+                                "</div></div>");
+                        }
+                    },
+                    error:function () {
+                        alert("系统异常");
+                    }
+                })
+            })
+
+            $("#addPingLunBtn").click(function () {
+                if ($("#pText").val()==null||$("#pText").val()==""){
+                    alert("评论内容不能为空");
+                }else {
+                    $("#addPingLunForm").attr("action","/dongTai/addPingLunIndex.do").submit();
+                }
+            })
+        })
+
+        function imgShow(img){
+            // alert(img);
+            var img1 = "";
+            if (img!=null){
+                var endWith = img.toString().split(".")[1];
+                if (endWith=="jpg"||endWith=="png"||endWith=="jpeg"||endWith=="ico") {
+                    img1 = "<img src='" + img + "' width='300px' height='200px'>";
+                }
+            }
+            return img1;
+        }
+
+        function showPingLun(bdtId){
+            var a = $(bdtId).children("input").val();
+            $.ajax({
+                url:"/dongTai/findPingLunByBdtId.do",
+                type:"get",
+                data:{bdtId:a},
+                success:function (result) {
+                    if (result==null)
+                        return;
+                    var pingLun = $("#_"+a);
+                    pingLun.html("");
+                    for (var i=0;i<result.length;i++){
+                        var pl = result[i];
+                        var time = new Date(pl.pCreateTime);
+                        pingLun.append("<div>" +
+                            pl.uName+"&nbsp;&nbsp;"+
+                            +time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+"&nbsp;"+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds()+
+                            "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+pl.pText+
+                            "</div>")
+                    }
+                }
+            })
+        }
+
+        function getBdtId(bdtId){
+            $("#bdtId").val(bdtId);
+            // $("#pageN").val($("#span1").attr("value"));
+            // alert($("#pageN").val());
+        }
+        $(function () {
+            var local1=document.getElementById('videoID');   //获取，函数执行完成后local内存释放
+            local1.autoplay = true; // 自动播放
+            local1.loop = true; // 循环播放
+            local1.muted=true; // 关闭声音，如果为false,视频无法自动播放
+            if(local1.paused){  //判断是否处于暂停状态
+                local1.play();  //开启播放
+            }else{
+                local1.pause();  //停止播放
+            }
+        })
+    </script>
+</head>
+<body>
+    <div th:include="bar/header::header_bar"></div>
+    <div hidden id="head">
+    <div style="height: 190px;width: 100%;">
+        <img src="/img/banner/新闻中心banner.png" style="width: 100%;height: 190px;background-repeat: no-repeat">
+    </div>
+    <div style="width: 70%;height: auto;margin:0 auto;border:1px solid #000;">
+        <div style="width: 100%;height: 60px;float: left"></div>
+        <div style="border: solid 1px #cccccc;width: 100%;height: 40px;float: left">
+            <div style="float: left;height: 100%;width: 100px;background-color: #088038;text-align: center"><div style="margin-top: 8px"><font color="white" id="textSpace">校园新闻</font></div></div>
+            <div style="float: right;height: 100%;width: auto">
+                <div style="margin-top: 8px" id="neiRongXiangXi">
+                    <font>
+                        当前位置:
+                        <a th:href="@{/index.html}">网站首页</a>&nbsp;>
+                        <a th:href="@{/user/news/schoolNews.html}">校园新闻</a>&nbsp;>
+                        <font color='#666666'>内容详细</font>&nbsp;&nbsp;
+                    </font>
+                </div>
+            </div>
+        </div>
+        <div style="width: 100%;height: 40px;float: left"></div>
+    </div>
+    </div>
+
+
+    <div id="allText">
+    <div>
+        <div style="width: 15%;float: left;height: 300px"></div>
+        <div style="height: 300px;width: 35%;float: left;margin-top: 20px">
+            <div style="margin-top: 10px"><font color="#389344" size="4">视频中心</font>&nbsp;&nbsp;<font color="#cccccc">Video&nbsp;Introduction</font></div>
+            <hr align="left" style="color: #cccccc;width: 85%">
+            <video width="450" height="230"  id="videoID">
+
+                <source src="/video/哈信息短.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div style="height: 300px;width: 50%;float: left;margin-top: 20px">
+            <div style="margin-top: 10px">
+                <div style="float: left"><font color="#389344" size="4">关于我们</font>&nbsp;&nbsp;<font color="#cccccc">About&nbsp;Us</font></div>
+                <div style="float: right;margin-right: 40%;"><a th:href="@{/user/callMe/callMe.html}">更多>></a></div>
+            </div>
+            <div style="float: left;width: 100%"><hr align="left" style="color: #cccccc;width: 70%"></div>
+
+
+            <style>
+             #warp{
+                    width: 180px;
+                    height: 220px;
+                    overflow: hidden;
+                    /*!*margin:0px auto 0;*!*/
+                    /*overflow-x: hidden;!* !*隐藏滚动条*!*!*/
+                    position: relative;
+                }
+             #con{
+                 display: flex;
+             }
+             #box1 img{
+                 width: 180px;
+                 height: 220px;
+                 position: absolute;
+                 left: 0;
+                 top: 0;
+                 transition: all 0.6s ease;
+                 opacity: 0;
+                 z-index: 6;
+             }
+             /*  #warp #con{
+                width: 1200px;
+                height: 220px;
+                overflow: hidden;
+            }
+            #warp #con #box1{
+                float: left;
+                overflow: hidden;
+            }
+            #warp #con #box2{
+                float: left;
+                overflow: hidden;
+            }
+            #warp img{
+                float: left;
+                margin-right: 0px;
+                width: 180px;
+                height: 220px;
+            }*/
+                /*.btn11{
+                    text-align: center;
+                    margin-top: 10px;
+                }*/
+                /*.btn11 button{
+                    font-size: 16px;
+                }*/
+            </style>
+            <div style="float: right;width: 40%;margin-right: 30%">
+                <p><font size="4"><b>家校互联</b></font></p>
+                <p style='text-indent: 2em;line-height: 30px'>
+                关于我们关于我们关于我们关于我们关于我们关于我们关于我们关于我们关于我们关于我们关于我们
+                关于我们关于我们关于我们关于我们关于我们！
+                    <a href="/user/callMe/callMe.html"><font color="green">[详情]</font></a>
+                </p>
+            </div>
+            <div id="warp">
+                <div id="con">
+                    <div id="box1">
+                        <img src="/img/草原.jpg" alt="">
+                        <img src="/img/雨林.jpg" alt="">
+                        <img src="/img/沙漠.jpg" alt="">
+                        <img src="/img/雪山.jpg" alt="">
+                        <img src="/img/ph6204-p00674.jpg" alt="">
+                    </div>
+                    <div id="box2"></div>
+                </div>
+            </div>
+            <!--<div class="btn11">
+                <button id="scrollL">&lt;&lt;左滚</button>
+                <button id="scrollR">右滚&gt;&gt;</button>
+            </div>-->
+            <script>
+                window.onload=function(){
+                    var lis=document.getElementById("box1").children;
+                    var index=0;
+                    (function(){
+                        for(var i=0;i<lis.length;i++){
+                            lis[index].style.cssText="opacity: 1;"
+                        }
+                    })()
+                    function sWipor() {
+                        for (var i = 0; i < lis.length; i++) {
+                            lis[i].style.cssText = "opacity: 0;";
+                        }
+                        lis[index].style.cssText = "opacity: 1;";
+                    }
+                    dishiqi();
+
+                    function dishiqi() {
+                        dingshi = setInterval(function() {
+                            index++;
+                            if (index > lis.length - 1) {
+                                index = 0;
+                            }
+                            sWipor();
+                        }, 4000)
+                    }
+
+                }
+ /*               var warp=document.getElementById('warp');
+                /!*var con=document.getElementById('con');*!/
+                var box1=document.getElementById('box1');
+                var box2=document.getElementById('box2');
+                var img=box1.getElementsByTagName('img')[0];
+                /!*var scrollL=document.getElementById('scrollL');var scrollR=document.getElementById('scrollR');*!/
+                var timer1=null,timer2=null,flage=1;
+                box2.innerHTML=box1.innerHTML;
+                max=box1.clientWidth;
+                imgmax=img.clientWidth;
+                function scrollLeft(){
+                    flage=1;
+                    clearInterval(timer1);
+                    timer1=setInterval(function(){
+                        warp.scrollLeft++;
+                        if (warp.scrollLeft>max-100) {
+                            warp.scrollLeft=0;
+                        }
+                        if(warp.scrollLeft%imgmax==0){
+                            clearInterval(timer1);
+                            clearTimeout(timer2);
+                            timer2=setTimeout(function(){
+                                timer1=setInterval(scrollLeft,5)
+                            },1000)
+                        }
+                    },5)
+                }*/
+                /*function scrollRight(){
+                    flage=0;
+                    clearInterval(timer1);
+                    timer1=setInterval(function(){
+                        warp.scrollLeft--;
+                        if (warp.scrollLeft<=0) {
+                            warp.scrollLeft=max;
+                        }
+                        if(warp.scrollLeft%imgmax==0){
+                            clearInterval(timer1);
+                            clearTimeout(timer2);
+                            timer2=setTimeout(function(){
+                                timer1=setInterval(scrollRight,5)
+                            },2000)
+                        }
+                    },5)
+                }*/
+/*                scrollLeft();
+                /!*scrollL.onclick=function(){
+                    scrollLeft();
+                }*!/
+                /!*scrollR.onclick=function(){
+                    scrollRight();
+                }*!/
+                warp.onmouseenter=function(){
+                    clearInterval(timer1);
+                    clearTimeout(timer2);
+                }
+                warp.onmouseleave=function(){
+                    clearInterval(timer1);
+                    clearTimeout(timer2);
+                    console.log(flage);
+                    if (flage) {scrollLeft();}
+                    /!*else{scrollRight();}*!/
+                }*/
+            </script>
+
+        </div>
+
+    </div>
+    <div>
+        <div style="width: 15%;float: left;height: 200px"></div>
+        <div style="float: left;width: 50%;height: 40px">
+            <div style="border:2px solid #cccccc;float: left;padding: 10px;width: 50%">
+                <a href="javascript:0;"><font color="#389344" th:align="center" id="schoolNews">校园新闻&nbsp;&nbsp;COMPANY&nbsp;NEWS<a href="/user/news/schoolNews.html" style="color: blue">&nbsp;&nbsp;&nbsp;更多>></a></font></a>
+            </div>
+            <div style="border:2px solid #cccccc;padding: 10px;width: 50%;float: left">
+                <a href="javascript:0;"><font color="#389344" th:align="center" id="dongTai">师生动态&nbsp;&nbsp;TECHNIQUE&nbsp;SUPPORT<a href="/user/dongTai/dongTai.html" style="color: blue">&nbsp;&nbsp;&nbsp;更多>></a></font></a>
+            </div>
+        </div>
+
+        <div id="showText" style="float: left;width: 50%;height: auto;border-bottom:2px solid #cccccc;border-right:2px solid #cccccc;border-left:2px solid #cccccc">
+            <div style="height: 40px;padding: 10px;">
+                老师和学生可以发布动态，老师、学生、家长都可以留言和查看留言
+            </div>
+            <div style="height: 40px;padding: 10px;">
+                添加老师时，注意添加班级
+            </div>
+            <div style="height: 40px;padding: 10px;">
+                添加学生时，注意添加班级、班任、家长
+            </div>
+            <div style="height: 40px;padding: 10px;">
+                添加家长时，注意给家长匹配对应的学生、班任、班级
+            </div>
+        </div>
+        <div style="width: 33%;height: auto;float: right;margin-top: 0px;margin-bottom: 50px">
+            <table border="2px" bordercolor="#cccccc" width="60%;" style="margin-top: -40px">
+                <tr><td><div style="margin: 13px;float: left"><font color="#389344" size="4">联系我们</font>&nbsp;&nbsp;<font color="#cccccc">Contact&nbsp;Us</font></div>
+                    <div style="float: right;margin: 13px;"><a th:href="@{/user/callMe/callMe.html}">更多>></a></div></td></tr>
+                <tr>
+                    <td>
+                        <div style="float: left;margin-left: 30px;margin-top: 20px"><img src="/img/small/电话图标绿.png" width="50px" height="50px"></div>
+                        <div style="margin: 13px;float: left">
+                            <font color="#cccccc" size="2">全国服务热线:</font><br>
+                            <font color="black" size="5" face="微软雅黑 Light"><b>400-1234-1234</b></font>
+                        </div>
+                        <div style="margin-left: 13px;float: left;width: 100%"><font color="black" size="5" face="微软雅黑 Light"><b>家校互联</b></font></div>
+                        <div style="margin-left: 13px;margin-top: 13px;float: left;width: 100%"><font color="black" size="3">电子邮箱:aa1796494607@163.com</font></div>
+                        <div style="margin: 13px;float: left;width: 100%;"><font color="black" size="3">地址:宾西大学城</font></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    </div>
+    <div th:include="bar/footBar::foot_bar"></div>
+
+    <!--模态框-->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel" align="center">新增评论</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body" style="margin: 0 auto">
+                    <form method="post" id="addPingLunForm">
+                        <textarea placeholder="评论内容..." cols="45" rows="8" name="pText" id="pText"></textarea>
+                        <input type="hidden" name="uName" th:value="${#session.getAttribute('LOGIN_USER').uName}">
+                        <input type="hidden" name="bdtId" id="bdtId" value="">
+                        <input type="hidden" name="pageN" id="pageN" value="">
+                        <input type="hidden" name="uri" value="/index.html">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" id="addPingLunBtn">发表</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+
+</body>
+</html>

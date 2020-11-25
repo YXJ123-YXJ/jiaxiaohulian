@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yxj.jiaxiaohulian.dao.AdminDao">
+
+<!--+++++++++++++++++++++++++++++管理员登录+++++++++++++++++++++++++++++++++++++-->
+    <resultMap id="UserMap" type="User" extends="com.yxj.jiaxiaohulian.dao.LoginDao.userLoginMap"></resultMap>
+    <sql id="UserSql">
+        u_stuno,u_yuanxi,u_clazz,u_name,u_pwd,u_quanxian,u_sex,u_age,u_dizhi,u_touxiang,u_phone,
+        u_email,u_idcard,u_addtime,us_name,ut_name,uj_name,u_shenhe,u_role,u_salt
+    </sql>
+    <select id="adminLogin" resultMap="UserMap">
+        select <include refid="UserSql"/> from user where u_name=#{uName} and u_pwd=#{uPwd}
+    </select>
+
+    <select id="findRolesByAName" resultMap="UserMap">
+        select <include refid="UserSql"/> from user where u_name=#{uName}
+    </select>
+
+<!-- +++++++++++++++++++++++++++++++++新闻+++++++++++++++++++++++++++++++++++++ -->
+    <insert id="addNews">
+        insert into xuexiaoxinwen values(null,#{xName},#{xText},#{xType},#{xCreateTime},#{xTuPian})
+    </insert>
+
+    <sql id="NewsSql">
+        xw.x_id as xId,xw.x_name as xName,xw.x_text as xText,xw.x_type as xType,
+        xw.x_createtime as xCreateTime,count(dj.x_id) as xDianJiLiang,xw.x_tupian as xTuPian
+    </sql>
+    <select id="findNews" resultType="XueXiaoXinWen">
+        SELECT <include refid="NewsSql"/>
+        from xuexiaoxinwen xw left join xinwendianji dj on xw.x_id=dj.x_id
+        <where>
+            <if test="xName!=null and xName!=''">
+                and xw.x_name like "%"#{xName}"%"
+            </if>
+            <if test="xType!=null and xType!=''">
+                and xw.x_type like "%"#{xType}"%"
+            </if>
+            <if test="xId!=null and xId!=''">
+                and xw.x_id=#{xId}
+            </if>
+        </where>
+        GROUP BY xw.x_id
+        order by xw.x_createtime desc
+    </select>
+
+    <delete id="deleteNewsByXId">
+        delete from xuexiaoxinwen where x_id=#{xId}
+    </delete>
+    <delete id="deleteDianJiLiangByXId">
+        delete from xinwendianji where x_id=#{xId}
+    </delete>
+<!-- ++++++++++++++++++++++++++++++动态++++++++++++++++++++++++++++++++ -->
+    <sql id="ShiShengDongTaiAndDongTaiLiuLanSql">
+        dt.dt_id as dtId,dt.dt_name as dtName,dt.dt_text as dtText,dt.u_name as uName,
+        dt.dt_createtime as dtCreateTime,dt.dt_tupian as dtTuPian,count(l.dt_id) as dtDianJiLiang
+    </sql>
+    <select id="findDongTai" resultType="ShiShengDongTai">
+        select <include refid="ShiShengDongTaiAndDongTaiLiuLanSql"/> from shishengdongtai dt left join dongtailiulan l on
+        dt.dt_id=l.dt_id
+        <where>
+            <if test="uName != null and uName != ''">
+                and dt.u_name like "%"#{uName}"%"
+            </if>
+            <if test="dtName != null and dtName != ''">
+                and dt.dt_name like "%"#{dtName}"%"
+            </if>
+        </where>
+        group by dt.dt_id order by dt.dt_createtime desc,dtDianJiLiang desc
+    </select>
+
+    <delete id="deleteDongTaiByDtId">
+        delete from shishengdongtai where dt_id=#{dtId}
+    </delete>
+    <delete id="deletePingLunByDtId">
+        delete from pinglun where bdt_id=#{bdtId}
+    </delete>
+    <delete id="deleteDianJiLiangByDtId">
+        delete from dongtailiulan where dt_id=#{dtId}
+    </delete>
+<!--+++++++++++++++++++++++++++++++++通知公告++++++++++++++++++++++++++++++++++++-->
+    <insert id="addTongZhi">
+        insert into tongzhigonggao values(null,#{tzName},#{tzText},#{tzCreateTime},#{tzLevel},#{tzTextFor},#{tzTextFrom})
+    </insert>
+
+    <sql id="TongZhiGongGaoSql">
+        tz_id as tzId,tz_name as tzName,tz_text as tzText,tz_createtime as tzCreateTime,
+        tz_level as tzLevel,tz_textfor as tzTextFor,tz_textfrom as tzTextFrom
+    </sql>
+    <select id="findTongZhi" resultType="TongZhiGongGao">
+        select <include refid="TongZhiGongGaoSql"/> from tongzhigonggao
+        <where>
+            <if test="tzId!=null and tzId!=''">
+                and tz_id=#{tzId}
+            </if>
+            <if test="tzName!=null and tzName!=''">
+                and tz_name like "%"#{tzName}"%"
+            </if>
+            <if test="tzLevel!=null and tzLevel!=''">
+                and tz_level=#{tzLevel}
+            </if>
+            <if test="tzTextFor!=null and tzTextFor!=''">
+                and tz_textfor like "%"#{tzTextFor}"%"
+            </if>
+            <if test="tzTextFrom!=null and tzTextFrom!=''">
+                and tz_textfrom like "%"#{tzTextFrom}"%"
+            </if>
+        </where>
+        order by tz_createtime desc
+    </select>
+
+    <delete id="deleteTongZhiByTzId">
+        delete from tongzhigonggao where tz_id=#{tzId}
+    </delete>
+    <delete id="deleteGongGaoChaKanByTzId">
+        delete from gonggaochakan where tz_id=#{tzId}
+    </delete>
+
+    <update id="updateTongZhiByTzId">
+        update tongzhigonggao
+        <set>
+            <if test="tzName!=null and tzName!=''">
+                tz_name=#{tzName},
+            </if>
+            <if test="tzText!=null and tzText!=''">
+                tz_text=#{tzText},
+            </if>
+            <if test="tzLevel!=null and tzLevel!=''">
+                tz_level=#{tzLevel},
+            </if>
+            <if test="tzTextFor!=null and tzTextFor!=''">
+                tz_textfor=#{tzTextFor},
+            </if>
+            <if test="tzTextFrom!=null and tzTextFrom!=''">
+                tz_textfrom=#{tzTextFrom},
+            </if>
+        </set>
+        where tz_id=#{tzId}
+    </update>
+<!--++++++++++++++++++++++++++++++++留言管理++++++++++++++++++++++++++++++++++++++++-->
+    <sql id="LiuYanSql">
+        l_id as lId,l_text as lText,u_namefrom as uNameFrom,u_nameto as uNameTo,
+        l_huifu as lHuiFu,l_createtime as lCreateTime,l_fujian as lFuJian
+    </sql>
+    <select id="findLiuYan" resultType="LiuYan">
+        select <include refid="LiuYanSql"/> from liuyan
+        <where>
+            <if test="uNameFrom!=null and uNameFrom!=''">
+                and u_namefrom like "%"#{uNameFrom}"%"
+            </if>
+            <if test="uNameTo!=null and uNameTo!=''">
+                and u_nameto like "%"#{uNameTo}"%"
+            </if>
+        </where>
+        order by l_createtime desc
+    </select>
+
+    <delete id="deleteLiuYanByLId">
+        delete from liuyan where l_id=#{lId}
+    </delete>
+<!--++++++++++++++++++++++++++++++++++++++系统+++++++++++++++++++++++++++++++++++++-->
+    <sql id="SystemSql">
+        system_id as systemId,xitongjianjie as xiTongJianJie,xitongxieyi as xiTongXieYi,
+        lianxiwomen as lianXiWoMen,guanyuwomen as guanYuWoMen
+    </sql>
+    <select id="findSystem" resultType="Systems">
+        select <include refid="SystemSql"/> from system where system_id=1
+    </select>
+
+    <update id="updateSystem">
+        update system
+        <set>
+            <if test="xiTongJianJie!=null and xiTongJianJie!=''">
+                xitongjianjie=#{xiTongJianJie},
+            </if>
+            <if test="xiTongXieYi!=null and xiTongXieYi!=''">
+                xitongxieyi=#{xiTongXieYi},
+            </if>
+            <if test="lianXiWoMen!=null and lianXiWoMen!=''">
+                lianxiwomen=#{lianXiWoMen},
+            </if>
+            <if test="guanYuWoMen!=null and guanYuWoMen!=''">
+                guanyuwomen=#{guanYuWoMen},
+            </if>
+        </set>
+        where system_id=1
+    </update>
+
+    <insert id="addWangZhan">
+        insert into youqinglianjie values(null,#{ljName},#{ljSrc},#{ljCreateTime})
+    </insert>
+
+    <sql id="YouQingLianJieSql">
+        lj_id as ljId,lj_name as ljName,lj_src as ljSrc,lj_createtime as ljCreateTime
+    </sql>
+    <select id="findWangZhan" resultType="YouQingLianJie">
+        select <include refid="YouQingLianJieSql"/> from youqinglianjie
+        <where>
+            <if test="ljName!=null and ljName!=''">
+                and lj_name like "%"#{ljName}"%"
+            </if>
+            <if test="ljSrc!=null and ljSrc!=''">
+                and lj_src like "%"#{ljSrc}"%"
+            </if>
+            <if test="ljId!=null and ljId!=''">
+                and lj_id=#{ljId}
+            </if>
+        </where>
+        order by lj_createtime desc
+    </select>
+
+    <update id="updateWangZhanByLjId">
+        update youqinglianjie
+        <set>
+            <if test="ljName!=null and ljName!=''">
+                lj_name=#{ljName},
+            </if>
+            <if test="ljSrc!=null and ljSrc!=''">
+                lj_src=#{ljSrc},
+            </if>
+            <if test="ljCreateTime!=null">
+                lj_createtime=#{ljCreateTime},
+            </if>
+        </set>
+        where lj_id=#{ljId}
+    </update>
+
+    <delete id="deleteWangZhanByLjId">
+        delete from youqinglianjie where lj_id=#{ljId}
+    </delete>
+<!--+++++++++++++++++++++++++++++++++++++用户++++++++++++++++++++++++++++++++++++++++-->
+    <!--<resultMap id="UserMap" type="User" extends="com.yxj.jiaxiaohulian.dao.LoginDao.userLoginMap"></resultMap>-->
+    <!--<sql id="UserSql">
+        u_stuno,u_yuanxi,u_clazz,u_name,u_pwd,u_quanxian,u_sex,u_age,u_dizhi,u_touxiang,u_phone,
+        u_email,u_idcard,u_addtime,us_name,ut_name,uj_name,u_shenhe,u_role,u_salt
+    </sql>-->
+    <select id="findUser" resultMap="UserMap">
+        select <include refid="UserSql"/> from user
+        <where>
+            and u_shenhe in (1,3)
+            <if test="uStuNo!=null and uStuNo!=''">
+                and u_stuno=#{uStuNo}
+            </if>
+            <if test="uShenHe!=null and uShenHe!=''">
+                and u_shenhe=#{uShenHe}
+            </if>
+            <if test="uQuanXian!=null and uQuanXian!=''">
+                and u_quanxian=#{uQuanXian}
+            </if>
+            <if test="uName!=null and uName!=''">
+                and u_name like "%"#{uName}"%"
+            </if>
+            <if test="uSex!=null and uSex!=''">
+                and u_sex=#{uSex}
+            </if>
+            <if test="uDiZhi!=null and uDiZhi!=''">
+                and u_dizhi like "%"#{uDiZhi}"%"
+            </if>
+            <if test="uPhone!=null and uPhone!=''">
+                and u_phone like "%"#{uPhone}"%"
+            </if>
+            <if test="usName!=null and usName!=''">
+                and us_name like "%"#{usName}"%"
+            </if>
+            <if test="uYuanXi!=null and uYuanXi!=''">
+                and u_yuanxi like "%"#{uYuanXi}"%"
+            </if>
+            <if test="uClazz!=null and uClazz!=''">
+                and u_clazz like "%"#{uClazz}"%"
+            </if>
+        </where>
+    </select>
+
+    <update id="updateUserStateByUName">
+        update user set u_shenhe=#{uShenHe} where u_name=#{uName}
+    </update>
+
+    <!--+++ 删除用户开始 +++-->
+    <delete id="deleteUserByUName">
+        delete from user where u_name=#{uName}
+    </delete>
+    <delete id="deleteGongGaoChaKanByUName">
+        delete from gonggaochakan where u_name=#{uName}
+    </delete>
+    <delete id="deleteLiuYanByUNameFrom">
+        delete from liuyan where u_namefrom=#{uNameFrom}
+    </delete>
+    <delete id="deletePingLunByUName">
+        delete from pinglun where u_name=#{uName}
+    </delete>
+    <delete id="deleteDongTaiByUName">
+        delete from shishengdongtai where u_name=#{uName}
+    </delete>
+    <select id="findDtIdsByUName" resultType="int">
+        select dt_id as dtId from shishengdongtai where u_name=#{uName}
+    </select>
+    <select id="findPIdsByBdtIds" resultType="int">
+        select p_id as pId from pinglun where bdt_id in
+        <foreach collection="array" item="bdtId" open="(" close=")" separator=",">
+            #{bdtId}
+        </foreach>
+    </select>
+    <delete id="deletePingLunByPIds">
+        delete from pinglun where p_id in
+        <foreach collection="array" item="pId" open="(" close=")" separator=",">
+            #{pId}
+        </foreach>
+    </delete>
+    <delete id="deleteQingJiaByUsName">
+        delete from qingjia where us_name=#{usName}
+    </delete>
+    <!--+++ 删除用户结束 +++-->
+
+    <select id="findToShenHe" resultMap="UserMap">
+        select <include refid="UserSql"/> from user
+        <where>
+            and u_shenhe in (0,2)
+            <if test="uName!=null and uName!=''">
+                and u_name like "%"#{uName}"%"
+            </if>
+            <if test="uYuanXi!=null and uYuanXi!=''">
+                and u_yuanxi like "%"#{uYuanXi}"%"
+            </if>
+            <if test="uQuanXian!=null and uQuanXian!=''">
+                and u_quanxian=#{uQuanXian}
+            </if>
+        </where>
+    </select>
+    
+    <delete id="deleteToShenHeUserByUName">
+        delete from user where u_name in
+        <foreach collection="array" item="uName" open="(" separator="," close=")">
+            #{uName}
+        </foreach>
+    </delete>
+
+    <sql id="QingJiaSql">
+        q_id as qId,q_text as qText,us_name as usName,q_uj_flag as qUjFlag,q_ut_flag as qUtFlag,
+        q_ua_flag as qUaFlag,q_days as qDays,q_timefrom as qTimeFrom,q_timeto as qTimeTo
+    </sql>
+    <select id="findQingJiaOverSevenDays" resultType="QingJia">
+        select <include refid="QingJiaSql"/> from qingjia where q_days=7
+    </select>
+
+    <update id="qUaFlagChange">
+        update qingjia set q_ua_flag=#{qUaFlag} where q_id=#{qId}
+    </update>
+
+<!--++++++++++++++++++++++++++++++++++系统管理+++++++++++++++++++++++++++++++++++++-->
+    <insert id="addAdmin">
+        insert into user values(#{uName},#{uPwd},#{uSalt},66,#{uSex},#{uAge},#{uDiZhi},#{uTouXiang},#{uPhone},
+        #{uEmail},#{uIdCard},#{uAddTime},111,#{usName},#{utName},#{ujName},#{uShenHe},null,#{uYuanXi},#{uClazz},#{uRole})
+    </insert>
+
+    <select id="findAdminByName" resultMap="UserMap">
+        select <include refid="UserSql"/> from user where u_name=#{uName}
+    </select>
+
+    <!--<sql id="AdminSql">
+        a_id as aId,a_name as aName,a_pwd as aPwd,a_sex as aSex,a_addtime as aAddTime,
+        a_touxiang as aTouXiang,a_phone as aPhone,a_role as aRole,a_salt as aSalt
+    </sql>-->
+    <select id="findAdmin" resultMap="UserMap">
+        select <include refid="UserSql"/> from user
+        <where>
+            <if test="uStuNo!=null and uStuNo!=''">
+                and u_stuno=#{uStuNo}
+            </if>
+            <if test="uName!=null and uName!=''">
+                and u_name like "%"#{uName}"%"
+            </if>
+            <if test="uRole!=null and uRole!=''">
+                and u_role=#{uRole}
+            </if>
+            <if test="uSex!=null and uSex!=''">
+                and u_sex like "%"#{uSex}"%"
+            </if>
+            and u_role in ('超级管理员','普通管理员')
+        </where>
+    </select>
+
+    <update id="updateAdmin">
+        update user set u_name=#{uName},u_pwd=#{uPwd},u_sex=#{uSex},u_phone=#{uPhone} where u_stuno=#{uStuNo}
+    </update>
+
+    <update id="updateBySuperAdmin">
+        update user set u_name=#{uName},u_sex=#{uSex},u_phone=#{uPhone},u_role=#{uRole} where u_stuno=#{uStuNo}
+    </update>
+
+    <delete id="deleteAdminByAId">
+        delete from user where u_stuno=#{uStuNo}
+    </delete>
+
+    <select id="findAdminNotIncludeMe" resultMap="UserMap">
+        select <include refid="UserSql"/> from user where u_name=#{uName} and u_stuno!=uStuNo
+    </select>
+
+    <update id="updateAdminPwd">
+        update user set u_pwd=#{uPwd},u_salt=#{uSalt} where u_name=#{uName}
+    </update>
+
+
+</mapper>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>我的动态</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script>
+
+
+
+        //------------------------------------------------------用户动态查看-------------------------------------------------------
+        var maxPage = 1;
+        var pageAllNum = 1;//用于记录每次评论操作之前的页码，评论后还能转到该页面
+        function showAndHidden(mm) {
+            var show_hidden = $(mm).next().attr("value");
+            if (show_hidden=="show"){
+                $(mm).next().attr("value","hidden");
+                $(mm).next().hide();
+                return;
+            }else {
+                $(mm).next().attr("value","show");
+                $(mm).next().show();
+                return;
+            }
+        }
+
+        function findAllDongTai(pageNum){
+            $.ajax({
+                url:"/dongTai/findMyDongTai.do",
+                type:"get",
+                data:{pageNum:pageNum,uName:$("#loginName").attr("value")},
+                success:function (result) {
+                    var list1 = result["list1"];
+                    var div11 = $("#hidden_show_controller");
+                    div11.html("");
+                    maxPage = result["maxPage"];
+                    $("#maxPage").val(maxPage);
+                    $("#maxPage").text(maxPage);
+                    for (var i=0;i<list1.length;i++) {
+                        var dongtai = list1[i];
+                        var time = new Date(dongtai.dtCreateTime);
+                        div11.append(
+                            "<div>" +
+                            "<div style='float: right;margin-right: 10%'><button class='deleteBtn' hidden onclick='deleteDongTai(this)' value='" + dongtai.dtId + "'>删除</button></div>" +
+                            "<div onclick='showAndHidden(this);addDianJiLiang(this);' value=\'" + dongtai.dtId + "\' style='width: 70%;margin:0 auto;'>" +
+                            "   <div style='float: left;' onclick='showPingLun(this);'>" +
+                            "   <input type='hidden' name='bdtId' value='" + dongtai.dtId + "'>" +
+                            "<font color='green'>" + dongtai.dtName + "&nbsp;&nbsp;" + "</font>" +
+                            dongtai.uName + "&nbsp;&nbsp;" +
+                            "       <font size='1'>浏览量:<span value='1111'>"  +dongtai.dtDianJiLiang+ "</span></font>&nbsp;&nbsp;" +
+                            "   </div>" +
+                            "   <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='javascript:0;'> -->></a>" + "   </div>" +
+                            "<div style='float: right'>" + time.getFullYear() + "-" +
+                            (time.getMonth() + 1) + "-" + time.getDate() + "&nbsp;" + time.getHours()
+                            + "      :" + time.getMinutes() + ":" + time.getSeconds() +"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+
+                            "<button class='btn btn-danger btn-sm' value='"+dongtai.dtId+"' onclick='deleteDongTai(this)'>删除</button></div>" +
+                            "   <br>" +
+                            "   </div>" +
+
+                            "   <div class='hidden_show_text' style='display: none;width: 70%;margin:0 auto;' value='hidden'>" +
+                            "       <div>" + imgShow(dongtai.dtTuPian) + "</div>" +
+                            "<div style='text-indent: 2em;line-height: 30px;letter-spacing: 2px;'>" + dongtai.dtText + "</div><br><br>评论区" + "&nbsp;&nbsp;&nbsp;&nbsp;" +
+                            "<button class='btn btn-link' data-toggle='modal' data-target='#myModal' onclick='getBdtId(" + dongtai.dtId + ")'>发表评论</button>" +
+                            "       <div id='_" + dongtai.dtId + "'>" +
+                            "   </div><br>" +
+                            "</div><hr></div>");
+                    }
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }
+
+        function imgShow(img){
+             // alert(img);
+            var img1 = "";
+            if (img!=null){
+                var endWith = img.toString().split(".")[1];
+                if (endWith=="jpg"||endWith=="png"||endWith=="jpeg"||endWith=="ico") {
+                    img1 = "<img src='" + img + "' width='300px' height='200px'>";
+                }
+            }
+            return img1;
+        }
+
+        function showPingLun(bdtId){
+            var a = $(bdtId).children("input").val();
+            $.ajax({
+                url:"/dongTai/findPingLunByBdtId.do",
+                type:"get",
+                data:{bdtId:a},
+                success:function (result) {
+                    if (result==null)
+                        return;
+                    var pingLun = $("#_"+a);
+                    pingLun.html("");
+                    for (var i=0;i<result.length;i++){
+                        var pl = result[i];
+                        var time = new Date(pl.pCreateTime);
+                        pingLun.append("<div>" +
+                            pl.uName+"&nbsp;&nbsp;"+
+                            +time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+"&nbsp;"+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds()+
+                            "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+pl.pText+
+                            "</div>")
+                    }
+                }
+            })
+        }
+
+        function getBdtId(bdtId){
+            $("#bdtId").val(bdtId);
+        }
+        
+        $(function () {
+            findAllDongTai(1);
+
+            $("#addPingLunBtn").click(function () {
+                if ($("#pText").val()==null||$("#pText").val()==""){
+                    alert("评论内容不能为空");
+                }else {
+                    // $("#addPingLunForm").attr("action","/dongTai/addPingLun.do").submit();
+                    $.ajax({
+                        url:"/dongTai/addPingLun.do",
+                        type:"get",
+                        data:{uName:$("#uName").val(),pText:$("#pText").val(),bdtId:$("#bdtId").val()},
+                        success:function (result) {
+                            findAllDongTai(pageAllNum);
+                        },
+                        complete:function(){
+                            $("#pText").val("");
+                            $("#myModal").modal("hide");
+                        },
+                        error:function () {
+                            alert("系统异常");
+                        }
+                    })
+                }
+            })
+
+            // $(".deleteBtn").attr("hidden","hidden");
+            $("#myDongTai_btn").click(function () {
+                // $("#myDongTai_btn").hide();
+                // $("#allDongTai_btn").removeAttr("hidden");
+                // $("#allDongTai_btn").show();
+                // $(".deleteBtn").removeAttr("hidden");
+                // $(".deleteBtn").show();
+
+                $(this).attr("value",$("#myDongTai").val());
+                findAllDongTai(1);
+                // $(".deleteBtn").removeAttr("hidden");
+                // $(".deleteBtn").show();
+
+            })
+
+            $("#allDongTai_btn").click(function () {
+                $("#myDongTai_btn").val("");
+                // $("#allDongTai_btn").hide();
+                // $("#myDongTai_btn").show();
+                // $(".deleteBtn").hide();
+                findAllDongTai(1);
+                // $(".deleteBtn").attr("hidden","hidden");
+                // $(".deleteBtn").hide();
+            })
+
+            // if ('[[${session.LOGIN_USER.uName}]]'==)
+
+        })
+
+        function changePage(mm) {
+            var flag = $(mm).val();
+            var span1 = parseInt($("#span1").text());
+            if (flag=="shou"){
+                $("#span1").val(1);
+                pageAllNum = $("#span1").val();
+                $("#span1").text(1);
+                findAllDongTai($("#span1").val());
+            }
+            if (flag=="wei"){
+                $("#span1").val(maxPage);
+                pageAllNum = $("#span1").val();
+                $("#span1").text(maxPage);
+                findAllDongTai($("#span1").val());
+            }
+            if(flag == "shang") {
+                if ($("#span1").val()>1) {
+                    $("#span1").val(--span1);
+                    pageAllNum = $("#span1").val();
+                    $("#span1").text($("#span1").val());
+                    findAllDongTai($("#span1").val());
+                }else {
+                    $("#span1").val(1);
+                    pageAllNum = $("#span1").val();
+                    $("#span1").text(1);
+                }
+            }
+            if(flag == "xia") {
+                // alert(maxPage);
+                if ($("#span1").val()<maxPage) {
+                    $("#span1").val(++span1);
+                    pageAllNum = $("#span1").val();
+                    $("#span1").text($("#span1").val());
+                    findAllDongTai($("#span1").val());
+                }else {
+                    $("#span1").val(maxPage);
+                    pageAllNum = $("#span1").val();
+                    $("#span1").text(maxPage);
+                }
+            }
+            $("#pageN").val($("#span1").val());
+        }
+
+        function deleteDongTai(deleteBtn){
+            if (confirm("确定要删除这条动态吗？")){
+                $.ajax({
+                    url:"/dongTai/deleteDongTaiById.do",
+                    type:"get",
+                    data:{dtId:$(deleteBtn).val()},
+                    success:function(result){
+                        alert("删除成功！");
+                    },
+                    error:function () {
+                        alert("系统异常");
+                    }
+                })
+                $(deleteBtn).parent("div").parent("div").parent("div").hide();
+            }
+        }
+
+        function addDianJiLiang(dtId){
+            $.ajax({
+                url:"/dongTai/addDianJiLiang.do",
+                type:"get",
+                data:{dtId:$(dtId).attr("value"),uName:$("#loginName").attr("value"),pageNum:pageAllNum},
+                success:function (result) {
+                    $(dtId).children("div").children("font").children("span").text(result);
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }
+
+        //---------------------------------------------------添加动态------------------------------------------------------
+        /*$(function () {
+
+            if ($("#addDongTai_btn").val()==1||$("#addDongTai_btn").val()==3){ //仅允许老师和学生发表动态
+                $("#addDongTai_btn").click(function () {
+                    window.location.href = "/addDongTai.html";
+                })
+            }else {
+                $("#addDongTai_btn").hide();
+            }
+
+        })*/
+
+
+    </script>
+</head>
+<body>
+<!--<input type="hidden" id="dangqianPage" th:value="">-->
+    <div th:include="bar/header::header_bar"></div>
+    <div id="allText">
+    <div style="height: 190px;width: 100%;background-color: blueviolet">
+        <img src="/img/banner/师生动态banner.png" style="width: 100%;height: 190px;background-repeat: no-repeat">
+    </div>
+        <div style="width: 100%;height: 60px;float: left"></div>
+        <div style="margin-left: 15%;border: solid 1px #cccccc;width: 69%;height: 40px;float: left">
+            <div style="float: left;height: 100%;width: 100px;background-color: #088038;text-align: center"><div style="margin-top: 8px"><font color="white">我的动态</font></div></div>
+            <div style="float: right;height: 100%;width: auto">
+                <div style="margin-top: 8px">
+                    <font>
+                        当前位置:
+                        <a th:href="@{/index.html}">网站首页</a>&nbsp;>
+                        我的动态&nbsp;&nbsp;
+                    </font>
+                </div>
+            </div>
+        </div>
+        <div style="width: 100%;height: 40px;float: left"></div>
+    <div style="width: 70%;height: auto;margin:0 auto;border:1px solid green;">
+        <div>
+            <div style="width: 50px;height: 15px"></div>
+            <!--后期这个hidden的值用session中的uName填充-->
+            <input type="hidden" id="myDongTai" th:value="${#session.getAttribute('LOGIN_USER').uName}">
+            <!--&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+<!--            <button class="btn btn-sm" style="background-color: #49B3DC;margin-left: 157px" id="myDongTai_btn">我的动态</button>-->
+<!--            <button class="btn btn-sm" id="allDongTai_btn" style="background-color: #49B3DC;margin-left: 157px" hidden="hidden">全部动态</button>-->
+            <!--后期这个button的值用session中的uQuanXian填充-->
+<!--            <button class="btn btn-sm" id="addDongTai_btn" style="background-color: #54FFFF" th:value="${#session.getAttribute('LOGIN_USER').uQuanXian}">发表动态</button>-->
+            <div style="width: 50px;height: 15px"></div>
+        </div>
+        <div id="hidden_show_controller">
+            <div onclick="showAndHidden(this)" style="width: auto;margin:0 auto;">
+                <a href="javascript:0;">
+                    <div style="float: left;background-color: chocolate">什么什么事</div>
+                    <div style="float: right;background-color: wheat">-->></div>
+                </a>
+                <br>
+            </div>
+
+            <div class="hidden_show_text" style="display: block;width: 80%;margin:0 auto;" value="hidden">
+                好多好多事好多好多事好多好多事好多好多事好多好多事好多好多事好多好多事好多好多事
+                好多好多事好多好多事好多好多事好多好多事好多好多事好多好多事好多好多事好多好多事
+            </div>
+        </div>
+        <div style="margin: 0 auto;width: 37%">
+            <button onclick="changePage(this)" class="btn btn-link mypage" value="shou">首页</button>
+            <button onclick="changePage(this)" class="btn btn-link mypage" value="shang">上一页</button>
+            第&nbsp;<span id="span1" value="1">1</span>&nbsp;页
+            共&nbsp;<span id="maxPage" value="x">x</span>&nbsp;页
+            <button onclick="changePage(this)" class="btn btn-link mypage" value="xia">下一页</button>
+            <button onclick="changePage(this)" class="btn btn-link mypage" value="wei">尾页</button>
+        </div>
+
+    </div>
+
+    <!--模态框-->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel" align="center">新增评论</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body" style="margin: 0 auto">
+                    <form method="post" id="addPingLunForm">
+                        <textarea placeholder="评论内容..." cols="45" rows="8" name="pText" id="pText"></textarea>
+                        <input type="hidden" id="uName" name="uName" th:value="${#session.getAttribute('LOGIN_USER').uName}">
+                        <input type="hidden" name="bdtId" id="bdtId" value="">
+                        <input type="hidden" name="pageN" id="pageN" value="">
+                        <input type="hidden" name="uri" value="/dongTai.html">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" id="addPingLunBtn">发表</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+    </div>
+<br><br><br><br><br>
+    <div th:include="bar/footBar::foot_bar"></div>
+</body>
+</html>

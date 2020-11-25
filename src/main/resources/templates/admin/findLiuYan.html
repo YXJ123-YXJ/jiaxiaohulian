@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script>
+        function findLiuYan(uNameFrom,uNameTo) {
+            $.ajax({
+                url:"/admin/findLiuYan.do",
+                type:"get",
+                data:{uNameFrom:uNameFrom,uNameTo:uNameTo},
+                success:function (result) {
+                    $("#tbody").html("");
+                    for (var i=0;i<result.length;i++){
+                        var liuYan = result[i];
+                        var time = new Date(liuYan.lCreateTime);
+                        var huiFu = (liuYan.lHuiFu==null||liuYan.lHuiFu=='')?"暂无回复":"<textarea readonly cols='40' rows='3'>"+liuYan.lHuiFu+"</textarea>"
+                        $("#tbody").append("<tr>" +
+                            "<td align='center'>"+(i+1)+"</td>" +
+                            "<td>"+liuYan.uNameFrom+"</td>" +
+                            "<td align='center'>"+liuYan.uNameTo+"</td>" +
+                            "<td align='center'><textarea readonly cols='40' rows='3'>"+liuYan.lText+"</textarea></td>" +
+                            "<td align='center'>"+huiFu+"</td>" +
+                            "<td>"+time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+"&nbsp;"+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds()+"</td>" +
+                            "<td><button class='btn btn-danger btn-sm' value='"+liuYan.lId+"' onclick='deleteLiuYanByLId(this)'>删除</button></td>" +
+                            "</tr>")
+                    }
+                }
+            })
+        }
+
+        $(function () {
+            findLiuYan(null,null);
+        })
+
+        function deleteLiuYanByLId(lId) {
+            if (confirm("确定要删除该条留言吗？")){
+                $.ajax({
+                    url:"/admin/deleteLiuYanByLId.do",
+                    type:"get",
+                    data:{lId:$(lId).val()},
+                    success:function (result) {
+                        alert("删除成功！");
+                        $(lId).parent("td").parent("tr").hide();
+                    }
+                })
+            }
+        }
+
+        function find(){
+            findLiuYan($("#findByUNameFrom").val(),$("#findByUNameTo").val());
+        }
+
+    </script>
+</head>
+<body>
+    <div id="allText">
+        <div style="width: 100%;height: 50px;margin-top: 30px;">
+            <div style="float: left;width: 20%;height: 70px"></div>
+            <div style="float: left;margin-right: 25px"><input type="text" id="findByUNameFrom" placeholder="留言发出者"></div>
+            <div style="float: left"><input type="text" id="findByUNameTo" placeholder="留言接收者"></div>
+            <div style="float: left;margin-left: 20px"><button onclick="find()" class="btn btn-sm" style="background-color: #5cb85c">查询</button></div>
+        </div>
+        <div>
+            <table class="table table-striped" border="1">
+                <thead>
+                <tr>
+                    <td align='center'><b>序号</b></td>
+                    <td><b>留言发出者</b></td>
+                    <td align='center'><b>留言接收者</b></td>
+                    <td align='center'><b>留言内容</b></td>
+                    <td align='center'><b>回复信息</b></td>
+                    <td ><b>留言时间</b></td>
+                    <td><b>操作</b></td>
+                </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

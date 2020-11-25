@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>添加新闻</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script>
+        function checkFile(obj){
+            var photoExt=obj.value.substr(obj.value.lastIndexOf(".")).toLowerCase();//获得文件后缀名
+            console.log(typeof (photoExt),photoExt)
+            if((photoExt==".jpg")||(photoExt==".jpeg")||(photoExt==".png")){
+                $("#addbtn").attr("disabled",false);
+            }else{
+                $("#msg").html("");
+                alert("请上传后缀名为jpg,jpeg,png格式的照片!");
+                $("#addbtn").attr("disabled",true);
+                return false;
+            }
+            var fileSize = 0;
+            var isIE = /msie/i.test(navigator.userAgent) && !window.opera;
+            if (isIE && !obj.files) {
+                var filePath = obj.value;
+                var fileSystem = new ActiveXObject("Scripting.FileSystemObject");
+                var file = fileSystem.GetFile (filePath);
+                fileSize = file.Size;
+            }else {
+                fileSize = obj.files[0].size;
+                console.log(fileSize)
+            }
+            fileSize=Math.round(fileSize/1024*100)/100; //单位为KB
+            console.log(fileSize)
+            if(fileSize>=3072){
+                $("#msg").html("<font color='red'>照片最大尺寸为3M，请重新上传!</font>");
+                $("#addbtn").attr("disabled",true); //按钮失效
+                return false;
+            }else {
+                $("#addbtn").attr("disabled",false); //按钮生效
+                $("#msg").html("<font color='green'>✔</font>");
+            }
+        }
+
+        $(function () {
+            check();
+
+        })
+
+        function check(){
+            $("#xName").blur(function () {
+                if ($("#xName").val()==""||$("#xName")==null){
+                    $("#msgName").html("<font color='red'>动态标题不能为空</font>");
+                    // $("#addbtn").attr("disabled",true);
+                }else {
+                    $("#msgName").html("");
+                }
+            })
+            $("#xText").blur(function () {
+                if ($("#xText").val()==""||$("#xText")==null){
+                    $("#msgText").html("<font color='red'>动态内容不能为空</font>");
+                    // $("#addbtn").attr("disabled",true);
+                }else {
+                    $("#msgText").html("");
+                    // $("#addbtn").attr("disabled",false);
+                }
+            })
+            $("#flagTr").mouseover(function () {
+                if ($("#xName").val()!=""&&$("#xName")!=null&&$("#xText").val()!=""&&$("#xText")!=null) {
+                    $("#addbtn").attr("disabled", false);
+                } else {
+                    $("#addbtn").attr("disabled", true);
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <form action="/admin/addNews.do" method="post" enctype="multipart/form-data">
+            <table border="1" class="table table-hover" width="60%">
+                <tr>
+                    <td colspan="2"></td>
+                </tr>
+                <tr>
+                    <td>新闻标题:</td>
+                    <td><input type="text" name="xName" id="xName"><span id="msgName"></span></td>
+                </tr>
+                <tr>
+                    <td>新闻类型:</td>
+                    <td><input type="text" name="xType"></td>
+                </tr>
+                <tr>
+                    <td>新闻内容:</td>
+                    <td><textarea name="xText" cols="40" rows="8" placeholder="新闻内容..." id="xText"></textarea><span id="msgText"></span></td>
+                </tr>
+                <tr id="flagTr">
+                    <td>添加图片:</td>
+                    <td><input type="file" name="file" onchange="checkFile(this)"><span id="msg"></span></td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <input class="btn btn-primary btn-sm" type="reset" value="重置">
+                        <input class="btn btn-primary btn-sm" type="submit" id="addbtn" value="提交">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</body>
+</html>

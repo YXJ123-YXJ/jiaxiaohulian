@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>添加新闻</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script>
+
+        function check(){
+            $("#tzName").blur(function () {
+                if ($("#tzName").val()==""||$("#tzName").val()==null){
+                    $("#msgName").html("<font color='red'>通知标题不能为空</font>");
+                }else {
+                    $("#msgName").html("");
+                }
+            })
+            $("#tzText").blur(function () {
+                if ($("#tzText").val()==""||$("#tzText").val()==null){
+                    $("#msgText").html("<font color='red'>通知正文不能为空</font>");
+                }else {
+                    $("#msgText").html("");
+                }
+            })
+            $("#tzTextFor").blur(function () {
+                if ($("#tzTextFor").val()==""||$("#tzTextFor").val()==null){
+                    $("#msgTextFor").html("<font color='red'>通知抬头不能为空</font>");
+                }else {
+                    $("#msgTextFor").html("");
+                }
+            })
+            $("#tzTextFrom").blur(function () {
+                if ($("#tzTextFrom").val()==""||$("#tzTextFrom").val()==null){
+                    $("#msgTextFrom").html("<font color='red'>通知发出者不能为空</font>");
+                }else {
+                    $("#msgTextFrom").html("");
+                }
+            })
+            $("#flagTr").mouseover(function () {
+                if ($("#tzName").val() != "" && $("#tzName").val() != null && $("#tzText").val() != "" && $("#tzText").val() != null &&
+                    $("#tzTextFor").val() != "" && $("#tzTextFor").val() != null && $("#tzTextFrom").val() != "" && $("#tzTextFrom").val() != null) {
+                    $("#addbtn").attr("disabled", false);
+                } else {
+                    $("#addbtn").attr("disabled", true);
+                }
+            })
+        }
+
+        $(function () {
+            check();
+        })
+    </script>
+</head>
+<body>
+    <div id="allText">
+        <form action="/admin/addTongZhi.do" method="post" id="form1">
+            <table border="1" class="table table-hover" width="60%">
+                <tr>
+                    <td colspan="2"></td>
+                </tr>
+                <tr>
+                    <td>通知标题:</td>
+                    <td><input type="text" name="tzName" id="tzName"><span id="msgName"></span></td>
+                </tr>
+                <tr>
+                    <td>通知抬头:</td>
+                    <td><input type="text" name="tzTextFor" id="tzTextFor"><span id="msgTextFor"></span></td>
+                </tr>
+                <tr>
+                    <td>通知级别:</td>
+                    <td>
+                        <select name="tzLevel" style="width: 100px">
+                            <option value="1">校级</option>
+                            <option value="2">院级</option>
+                            <option value="3">系级</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>通知正文:</td>
+                    <td><textarea name="tzText" cols="40" rows="8" placeholder="通知正文..." id="tzText"></textarea><span id="msgText"></span></td>
+                </tr>
+                <tr id="flagTr">
+                    <td>通知发出者:</td>
+                    <td><input type="text" name="tzTextFrom" id="tzTextFrom"><span id="msgTextFrom"></span></td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <div style="float: left;margin-left: 40%"><input class="btn btn-primary btn-sm" type="reset" value="重置"></div>
+                        <div style="float: left;margin-left: 15px;width: auto;height: auto;background-color: #f39800" id="btnDiv"><input class="btn btn-primary btn-sm" type="submit" id="addbtn" value="提交"></div>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</body>
+</html>

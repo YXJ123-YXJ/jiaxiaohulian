@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>请假申请</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script th:src="@{/js/My97DatePicker/WdatePicker.js}"></script>
+    <script>
+        function addQingJia() {
+            var uStuNo = $("#uStuNo").val();
+            var usName = $("#usName").val();
+            var uSex = $("#uSex").val();
+            var uYuanXi = $("#uYuanXi").val();
+            var utName = $("#utName").val();
+            var uClazz = $("#uClazz").val();
+            var uPhone = $("#uPhone").val();
+            var qDays = $("#qDays").val();
+            var qTimeFrom = $("#qTimeFrom").val();
+            var qTimeTo = $("#qTimeTo").val();
+            var qText = $("#qText").val();
+            var qF = qTimeFrom.toString();
+            var qT = qTimeTo.toString();
+            if (qTimeFrom==null||qTimeFrom==''){
+                alert("请假时间不能为空");
+            }else if (qTimeTo==null||qTimeTo==''){
+                alert("请假结束时间不能为空");
+            }else if (qTimeTo<qTimeFrom){
+                alert("请假开始时间不能大于请假结束时间");
+            }else if ((qDays==1||qDays==2)&&(DateDiff(qTimeFrom,qTimeTo)!=qDays)){
+                alert("请假区间时长与请假天数不匹配");
+            }else if (qDays==3&&(DateDiff(qTimeFrom,qTimeTo)<qDays||DateDiff(qTimeFrom,qTimeTo)>6)){
+                alert("请假区间时长与请假天数不匹配");
+            }else if(qDays==7&&(DateDiff(qTimeFrom,qTimeTo)<qDays)){
+                alert("请假区间时长与请假天数不匹配");
+            } else if (qText==null||qText=='') {
+                alert("请假原因不能为空");
+            }else {
+                $.ajax({
+                    url:"/qingJia/addQingJia.do",
+                    type:"get",
+                    data:{usName:usName,qText:qText,qDays:qDays,qTimeFrom:qTimeFrom,qTimeTo:qTimeTo},
+                    success:function (result) {
+                        alert("申请成功，请等待相关人员审核!");
+                        window.location.href = "/user/qingjia/qingJiaStuQuery.html";
+                    },
+                    error:function () {
+                        alert("系统异常");
+                    }
+                })
+            }
+        }
+
+        function DateDiff(start, end) {
+            var sdate = new Date(start);
+            var now = new Date(end);
+            var days = now.getTime() - sdate.getTime();
+            var day
+            if (days-days / (1000 * 60 * 60 * 24)>0){
+                day = parseInt(days / (1000 * 60 * 60 * 24))+1;
+            }else {
+                day = parseInt(days / (1000 * 60 * 60 * 24));
+            }
+            return day;
+        }
+    </script>
+</head>
+<body>
+<div th:include="bar/header::header_bar"></div>
+<div style="height: 190px;width: 100%;background-color: blueviolet">
+    <img src="/img/banner/请假banner.png" style="width: 100%;height: 190px;background-repeat: no-repeat">
+</div>
+<div style="width: 100%;height: 60px;float: left"></div>
+<div style="margin-left: 15%;border: solid 1px #cccccc;width: 70%;height: 40px;float: left">
+    <div style="float: left;height: 100%;width: 100px;background-color: #088038;text-align: center"><div style="margin-top: 8px"><font color="white">请假申请</font></div></div>
+    <div style="float: right;height: 100%;width: auto">
+        <div style="margin-top: 8px">
+            <font>
+                当前位置:
+                <a th:href="@{/index.html}">网站首页</a>&nbsp;>
+                请假申请&nbsp;&nbsp;
+            </font>
+        </div>
+    </div>
+</div>
+<div style="width: 100%;height: 40px;float: left"></div>
+    <div>
+        <form>
+        <table border="1" align="center" style="width: 60%" class="table">
+            <tr><td colspan="2">添加请假信息</td></tr>
+            <tr>
+                <td>学号:</td>
+                <td><input id="uStuNo" type="text" class="form-control" th:value="${#session.getAttribute('LOGIN_USER').uStuNo}" readonly></td>
+            </tr>
+            <tr>
+                <td>姓名:</td>
+                <td><input id="usName" type="text" class="form-control" th:value="${#session.getAttribute('LOGIN_USER').uName}" readonly></td>
+            </tr>
+            <tr>
+                <td>性别:</td>
+                <td><input id="uSex" type="text" class="form-control" th:value="${#session.getAttribute('LOGIN_USER').uSex}" readonly></td>
+            </tr>
+            <tr>
+                <td>院系:</td>
+                <td><input id="uYuanXi" type="text" class="form-control" th:value="${#session.getAttribute('LOGIN_USER').uYuanXi}" readonly></td>
+            </tr>
+            <tr>
+                <td>辅导员:</td>
+                <td><input id="utName" type="text" class="form-control" th:value="${#session.getAttribute('LOGIN_USER').utName}" readonly></td>
+            </tr>
+            <tr>
+                <td>班级:</td>
+                <td><input id="uClazz" type="text" class="form-control" th:value="${#session.getAttribute('LOGIN_USER').uClazz}" readonly></td>
+            </tr>
+            <tr>
+                <td>电话:</td>
+                <td><input id="uPhone" type="text" class="form-control" th:value="${#session.getAttribute('LOGIN_USER').uPhone}" readonly></td>
+            </tr>
+            <tr>
+                <td>请假天数:</td>
+                <td><select id="qDays">
+                    <option value="1">一天</option>
+                    <option value="2">两天</option>
+                    <option value="3">三天到六天</option>
+                    <option value="7">七天及以上</option>
+                </select></td>
+            </tr>
+            <tr>
+                <td>请假时间段:</td>
+                <td>
+                    <div style="margin-bottom: 20px">
+                    从<input id="qTimeFrom" readonly class="form-control" style="width: 25%" placeholder="请假开始时间" type="text"
+                            onclick="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'%y-%M-%d'})"/>到
+                        <input id="qTimeTo" type="text" class="form-control" style="width: 25%" placeholder="请假结束时间" readOnly
+                               onClick="WdatePicker({el:this,dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'%y-%M-%d'})">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>请假原因:</td>
+                <td><textarea cols="40" rows="8" id="qText"></textarea></td>
+            </tr>
+            <tr><td colspan="2" align="center">
+                <input class="btn btn-sm" type="reset" value="重置">&nbsp;&nbsp;
+                <input class="btn btn-sm btn-primary" type="button" onclick="addQingJia()" value="提交">
+            </td></tr>
+        </table>
+        </form>
+    </div>
+<br><br><br><br><br>
+<div th:include="bar/footBar::foot_bar"></div>
+</body>
+</html>

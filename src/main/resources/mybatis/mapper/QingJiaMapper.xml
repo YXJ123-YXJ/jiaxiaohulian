@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yxj.jiaxiaohulian.dao.QingJiaDao">
+
+    <insert id="addQingJia">
+        insert into qingjia values(null,#{qText},#{usName},#{qUjFlag},#{qUtFlag},#{qUaFlag},#{qDays},#{qTimeFrom},#{qTimeTo});
+    </insert>
+
+    <sql id="QingJiaSql">
+        q_id as qId,q_text as qText,us_name as usName,q_uj_flag as qUjFlag,q_ut_flag as qUtFlag,
+        q_ua_flag as qUaFlag,q_days as qDays,q_timefrom as qTimeFrom,q_timeto as qTimeTo
+    </sql>
+    <select id="findQingJiaByUsName" resultType="QingJia">
+        select <include refid="QingJiaSql"/> from qingjia where us_name=#{usName} order by q_timefrom desc
+    </select>
+
+    <resultMap id="QingJiaAndUserMap" type="QingJia">
+        <id column="q_id" property="qId"/>
+        <result column="q_text" property="qText"/>
+        <result column="us_name" property="usName"/>
+        <result column="q_uj_flag" property="qUjFlag"/>
+        <result column="q_ut_flag" property="qUtFlag"/>
+        <result column="q_ua_flag" property="qUaFlag"/>
+        <result column="q_days" property="qDays"/>
+        <result column="q_timefrom" property="qTimeFrom"/>
+        <result column="q_timeto" property="qTimeTo"/>
+    </resultMap>
+    <select id="findQingJiaByUtName" resultType="QingJia">
+        select <include refid="QingJiaSql"/> from qingjia
+         <where>us_name in (select u_name from user
+             <where>
+                <if test="utName!=null and utName!=''">
+                   and ut_name=#{utName}
+                </if>
+                <if test="ujName!=null and ujName!=''">
+                    and uj_name=#{ujName}
+                </if>
+             </where> )
+             <if test="ujName!=null and ujName!=''">
+                 and q_days=7
+             </if>
+         </where>
+    </select>
+
+    <update id="qUtFlagChange">
+        update qingjia
+         <set>
+             <if test="qUtFlag!=null and qUtFlag!=''">
+                q_ut_flag=#{qUtFlag},
+             </if>
+             <if test="qUjFlag!=null and qUjFlag!=''">
+                 q_uj_flag=#{qUjFlag},
+             </if>
+         </set>
+        where q_id=#{qId}
+    </update>
+
+</mapper>

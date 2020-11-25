@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用户查询</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script>
+
+        function updateUserStateByUName(uName,uShenHe) {
+            $.ajax({
+                url:"/admin/updateUserStateByUName.do",
+                type:"post",
+                data:{uName:uName,uShenHe:uShenHe},
+                success:function (result) {
+                    findUser(null,null,null,null,null);
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }
+
+        function findUser(uName,uSex,uYuanXi,uClazz,uShenHe) {
+            $.ajax({
+                url:"/admin/findUser.do",
+                type:"get",
+                data:{uName:uName,uSex:uSex,uYuanXi:uYuanXi,uClazz:uClazz,uQuanXian:3},
+                success:function (result) {
+                    $("#tbody").html("");
+                    for (var i=0;i<result.length;i++){
+                        var user;
+                        if (uShenHe=='1'){
+                            if (result[i].uShenHe==1&&result[i].uQuanXian==3){
+                                user = result[i];
+                                var state = user.uShenHe==1?"<button class='btn btn-sm btn-warning' onclick='updateUserStateByUName(\""+user.uName+"\",3)'>冻结</button>"
+                                    :"<button class='btn btn-sm btn-primary' onclick='updateUserStateByUName(\""+user.uName+"\",1)'>解冻</button>";
+                                $("#tbody").append("<tr>" +
+                                    "<td>"+user.uStuNo+"</td>" +
+                                    "<td>"+user.uName+"</td>" +
+                                    "<td>"+user.uSex+"</td>" +
+                                    "<td>"+user.uAge+"</td>" +
+                                    "<td>"+user.uPhone+"</td>" +
+                                    "<td>"+user.uEmail+"</td>" +
+                                    "<td>"+user.uYuanXi+"</td>" +
+                                    "<td>"+user.uClazz+"</td>" +
+                                    "<td>"+user.utName+"</td>" +
+                                    "<td>"+user.ujName+"</td>" +
+                                    "<td>"+state+
+                                    "&nbsp;&nbsp;<button class='btn btn-danger btn-sm' value='"+user.uName+"' onclick='deleteUserByUName(this)'>删除</button> " +
+                                    "</td>" +
+                                    "</tr>")
+                            }
+                        }else if (uShenHe=='3'){
+                            if (result[i].uShenHe==3&&result[i].uQuanXian==3){
+                                user = result[i];
+                                var state = user.uShenHe==1?"<button class='btn btn-sm btn-warning' onclick='updateUserStateByUName(\""+user.uName+"\",3)'>冻结</button>"
+                                    :"<button class='btn btn-sm btn-primary' onclick='updateUserStateByUName(\""+user.uName+"\",1)'>解冻</button>";
+                                $("#tbody").append("<tr>" +
+                                    "<td>"+user.uStuNo+"</td>" +
+                                    "<td>"+user.uName+"</td>" +
+                                    "<td>"+user.uSex+"</td>" +
+                                    "<td>"+user.uAge+"</td>" +
+                                    "<td>"+user.uPhone+"</td>" +
+                                    "<td>"+user.uEmail+"</td>" +
+                                    "<td>"+user.uYuanXi+"</td>" +
+                                    "<td>"+user.uClazz+"</td>" +
+                                    "<td>"+user.utName+"</td>" +
+                                    "<td>"+user.ujName+"</td>" +
+                                    "<td>"+state+
+                                    "&nbsp;&nbsp;<button class='btn btn-danger btn-sm' value='"+user.uName+"' onclick='deleteUserByUName(this)'>删除</button> " +
+                                    "</td>" +
+                                    "</tr>")
+                            }
+                        }else {
+                            if (result[i].uQuanXian==3){
+                                user = result[i];
+                                var state = user.uShenHe==1?"<button class='btn btn-sm btn-warning' onclick='updateUserStateByUName(\""+user.uName+"\",3)'>冻结</button>"
+                                    :"<button class='btn btn-sm btn-primary' onclick='updateUserStateByUName(\""+user.uName+"\",1)'>解冻</button>";
+                                $("#tbody").append("<tr>" +
+                                    "<td>"+user.uStuNo+"</td>" +
+                                    "<td>"+user.uName+"</td>" +
+                                    "<td>"+user.uSex+"</td>" +
+                                    "<td>"+user.uAge+"</td>" +
+                                    "<td>"+user.uPhone+"</td>" +
+                                    "<td>"+user.uEmail+"</td>" +
+                                    "<td>"+user.uYuanXi+"</td>" +
+                                    "<td>"+user.uClazz+"</td>" +
+                                    "<td>"+user.utName+"</td>" +
+                                    "<td>"+user.ujName+"</td>" +
+                                    "<td>"+state+
+                                    "&nbsp;&nbsp;<button class='btn btn-danger btn-sm' value='"+user.uName+"' onclick='deleteUserByUName(this)'>删除</button> " +
+                                    "</td>" +
+                                    "</tr>")
+                            }
+                        }
+
+                    }
+                }
+            })
+        }
+
+        function deleteUserByUName(uName){
+            if (confirm("确定要删除此用户吗？")){
+                $.ajax({
+                    url:"/admin/deleteUserByUName.do",
+                    type:"post",
+                    data:{uName:$(uName).val()},
+                    success:function (result) {
+                        alert("删除成功！");
+                        $(uName).parent("td").parent("tr").hide();
+                    },
+                    error:function () {
+                        alert("系统异常！");
+                    }
+                })
+            }
+        }
+
+        $(function () {
+            findUser(null,null,null,null,null);
+        })
+
+        function find(){
+            findUser($("#findByUName").val(),$("#findByUSex").val(), $("#findByUYuanXi").val(),
+                $("#findByUClazz").val(),$("#findByUShenHe").val());
+            $("#findByUName").val("");
+            $("#findByUSex").val("");
+            $("#findByUYuanXi").val("");
+            $("#findByUClazz").val("");
+            $("#findByUShenHe").val("");
+        }
+
+    </script>
+</head>
+
+</head>
+<body>
+    <div id="allText" style="margin-left: 10px;margin-top: 30px">
+        <div style="float: left;width: 10%;height: 70px"></div>
+        <div style="float: left;margin-right: 25px"><input type="text" id="findByUName" placeholder="用户名"></div>
+        <div style="float: left;margin-right: 25px"><input type="text" id="findByUYuanXi" placeholder="院系"></div>
+        <div style="float: left"><input type="text" id="findByUClazz" placeholder="班级"></div>
+        <div style="float: left;margin-right: 25px">性别:<select id="findByUSex">
+            <option value="">全部</option>
+            <option value="男">男</option>
+            <option value="女">女</option>
+        </select></div>
+        <div style="float: left;margin-right: 25px">状态:<select id="findByUShenHe">
+            <option value="">全部</option>
+            <option value="1">未冻结</option>
+            <option value="3">已冻结</option>
+        </select></div>
+        <div style="float: left;margin-left: 20px"><button onclick="find()" class="btn btn-sm" style="background-color: #5cb85c">查询</button></div>
+        <div>
+            <table class='table table-striped' border='1' bordercolor='green'>
+                <thead>
+                    <tr>
+                        <td>学号</td>
+                        <td>用户名</td>
+                        <td>性别</td>
+                        <td>年龄</td>
+                        <td>电话</td>
+                        <td>邮箱</td>
+                        <td>院系</td>
+                        <td>班级</td>
+                        <td>辅导员</td>
+                        <td>家长</td>
+                        <td>操作</td>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

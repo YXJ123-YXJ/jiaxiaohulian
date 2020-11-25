@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yxj.jiaxiaohulian.dao.TongZhiDao">
+
+    <resultMap id="TongZhiGongGaoMap" type="TongZhiGongGao">
+        <id column="tz_id" property="tzId"/>
+        <result column="tz_name" property="tzName"/>
+        <result column="tz_text" property="tzText"/>
+        <result column="tz_createtime" property="tzCreateTime"/>
+        <result column="tz_level" property="tzLevel"/>
+        <result column="tz_textfor" property="tzTextFor"/>
+        <result column="tz_textfrom" property="tzTextFrom"/>
+    </resultMap>
+    <sql id="TongZhiGongGaoSql">
+        tz_id,tz_name,tz_text,tz_createtime,tz_level,tz_textfor,tz_textfrom
+    </sql>
+    <select id="findAllTongZhi" resultMap="TongZhiGongGaoMap">
+        select <include refid="TongZhiGongGaoSql"/> from tongzhigonggao
+        <where>
+            <if test="tzId!=null and tzId!='' and tzId!=0">
+                and tz_id=#{tzId}
+            </if>
+        </where>
+        order by tz_createtime desc
+    </select>
+
+    <insert id="addChaKan">
+        insert into gonggaochakan values(#{uName},#{tzId})
+    </insert>
+
+    <select id="findChaKanByUNameAndTzId" resultType="map">
+        select u_name as uName,tz_id as tzId from gonggaochakan where u_name=#{uName} and tz_id=#{tzId}
+    </select>
+
+    <select id="findChaKanByUNameAndTzIdList" resultType="map">
+        select u_name as uName,tz_id as tzId from gonggaochakan where u_name=#{uName} and tz_id=#{tzId}
+    </select>
+
+</mapper>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>修改管理员信息</title>
+    <link rel="shortcut icon" href="/static/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script>
+
+        /*function killSession() {
+            $.ajax({
+                url:"/logout.do",
+                type:"post",
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }*/
+
+        function updateAdminPwd(){
+            $.ajax({
+                url:"/admin/updateAdminPwd.do",
+                type:"post",
+                data:{uName:$("#aName").val(),uPwd:$("#newPwd").val()},
+                success:function(result){
+                    // alert("修改成功！");
+                    // killSession();
+                    // window.open("/adminLogin.html","_top");
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }
+
+
+    </script>
+</head>
+
+<body>
+    <div id="allText" style="margin-left: 10px;margin-top: 30px">
+        <form action="/admin/toUpdatePage.do" method="post" onsubmit="return checkSub()">
+            <table class='table table-hover' border='1' bordercolor='green'>
+                <input type="hidden" id="adminName" th:value="${#session.getAttribute('LOGIN_ADMIN').uName}">
+                <tr><td colspan='2'>修改管理员密码</td></tr>
+                <tr>
+                    <td>账号:</td>
+                    <td><input type="text" readonly th:value="${#session.getAttribute('LOGIN_ADMIN').uName}" name='aName' id='aName'></td>
+                </tr>
+                <tr>
+                    <td>原密码:</td>
+                    <td><input type="password" name='oldPwd' id='oldPwd' onblur="checkOldPwd()"><span id="oldPwdSpan"></span> </td>
+                    <input type="hidden" id="oldPwdFlag" value="">
+                </tr>
+                <tr>
+                    <td>新密码:</td>
+                    <td><input type="password" name='newPwd' id='newPwd' onblur="checkPwd()"><span id="newPwdSpan"></span> </td>
+                </tr>
+                <tr>
+                    <td>确认密码:</td>
+                    <td><input type="password" name='newPwd1' id='newPwd1' onblur="checkPwd2()"><span id="newPwd1Span"></span> </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        &nbsp;&nbsp;<input class='btn btn-primary btn-sm' type="reset" value="重置">&nbsp;&nbsp;
+                        <input class='btn btn-primary btn-sm' th:target="_top" th:href="@{/adminLogin.html}" type="submit" id="sub" name="sub" value="修改"/>
+                    </td>
+                </tr>
+            </table>
+        </form>
+
+    </div>
+</body>
+
+</html>
+
+<script type="text/javascript">
+    //验证原密码
+    function checkOldPwd() {
+        $.ajax({
+            url:"/admin/checkPwd.do",
+            type:"post",
+            data:{uName:$("#aName").val(),uPwd:$("#oldPwd").val()},
+            success:function (result) {
+                var span = document.getElementById("oldPwdSpan");
+                if (result=="success") {
+                    $("#oldPwdFlag").attr("value", "success");
+                    span.innerHTML="*原密码正确"
+                    span.style.color="green";
+                }else {
+                    span.innerHTML = "*原密码不正确";
+                    span.style.color = "red";
+                }
+            }
+        })
+        if ($("#oldPwdFlag").attr("value")=="success"){
+            return true;
+        }
+        return false;
+    }
+    //验证密码
+    function checkPwd(){
+        //获取用户获得用户名信息
+        var upwd=document.getElementById("newPwd").value;
+        //创建校验规则,密码要求6-8位，首位为字母，后面5-7位是数字
+        var reg=/^[a-z]\w{5,7}$/;
+        //获取span对象
+        var span=document.getElementById("newPwdSpan");
+        //开始交验
+        if(upwd==""||upwd==null){
+            //输入校验结果
+            span.innerHTML="*新密码不能为空";
+            span.style.color="red";
+            return false;
+        }else if(reg.test(upwd)){
+            //输入校验结果
+            span.innerHTML="*新密码通过";
+            span.style.color="green";
+            return true;
+        }else{
+            //输入校验结果
+            span.innerHTML="*新密码格式不符"
+            span.style.color="red";
+            return false;
+        }
+        //第一次密码为a123456，第二次密码为a1234567，则修改的第一次密码，确认密码也会重新校验
+        // checkPwd2();
+    }
+    //校验确认密码
+    function checkPwd2(){
+        //获取第一次校验密码
+        var pwd=document.getElementById("newPwd").value;
+        //获取确认密码
+        var pwd2=document.getElementById("newPwd1").value;
+        //获取span对象
+        var span=document.getElementById("newPwd1Span");
+        //比较前两次密码是否相同
+        if( pwd2==""|| pwd2==null){
+            //输入校验结果
+            span.innerHTML="*密码不能为空";
+            span.style.color="red";
+            return false;
+        }else if(pwd===pwd2){
+            //输入校验结果
+            span.innerHTML="*密码通过";
+            span.style.color="green";
+            return true;
+        }else{
+            //输入校验结果
+            span.innerHTML="*两次密码不同，请重新输入"
+            span.style.color="red";
+            return false;
+        }
+    }
+    //提交判断
+    function checkSub(){
+        // checkOldPwd();
+        checkPwd();
+        checkPwd2();
+        var result = checkOldPwd()&&checkPwd()&&checkPwd2();
+        if (result){
+            updateAdminPwd();
+            alert("修改成功！");
+        }
+        return result;
+    }
+    //----------------------------------------------------------------------------------------------------------------------
+    //封装校验：相同的保留，不同的传参
+    function checkField(id,reg){
+        //获取用户数据
+        var inp=document.getElementById(id);
+        var	va=inp.value;
+        var	alt=inp.alt;
+        //创建校验规则
+        //获取span对象
+        var span=document.getElementById(id+"Span");
+        //开始校验
+        if(va==""||va==null){
+            //输入校验结果
+            span.innerHTML="*"+alt+"不能为空";
+            span.style.color="red";
+            return false;
+        }else if(reg.test(va)){
+            //输入校验结果
+            span.innerHTML="*"+alt+"通过";
+            span.style.color="green";
+            return true;
+        }else{
+            //输入校验结果
+            span.innerHTML="*"+alt+"格式不符";
+            span.style.color="red";
+            return false;
+        }
+    }
+</script>

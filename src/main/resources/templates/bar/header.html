@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div th:fragment="header_bar">
+<div style="height: 27px;width: 100%;background-color: #cccccc">
+    <script>
+        $(function(){
+            /*var navNum = 0;
+            if($("#navNum").val()==$("#nav0").attr("uri"))
+                navNum = 0;
+            if($("#navNum").val()==$("#nav1").attr("uri"))
+                navNum = 1;
+            if($("#navNum").val()==$("#nav2").attr("uri"))
+                navNum = 2;
+            if($("#navNum").val()==$("#nav3").attr("uri")||$("#navNum").val()=="/addDongTai.html")
+                navNum = 3;
+            if($("#navNum").val()==$("#nav4").attr("uri")||$("#navNum").val()=="/addLiuYan.html")
+                navNum = 4;
+            if($("#navNum").val()==$("#nav5").attr("uri"))
+                navNum = 5;
+            if($("#navNum").val()==$("#nav6").attr("uri"))
+                navNum = 6;
+            if($("#navNum").val()==$("#nav7").attr("uri"))
+                navNum = 7;
+            if($("#navNum").val()==$("#nav8").attr("uri"))
+                navNum = 8;
+
+            $('ul li').eq(navNum).addClass("act");
+            $('ul li').each(function () {
+                $(this).click(function () {
+                    $(this).addClass("act").siblings().removeClass("act");
+                })
+            })*/
+
+        })
+
+    </script>
+    <style>
+        body{margin: 0; font-size: 14px; color: #666}
+        ul,ol{margin: 0;padding: 0; list-style: none;}
+        a,button {text-decoration: none; color: #666;}
+        /*一级导航*/
+        /*背景色*/
+        ul.menu,ul.submenu {
+            background-color: #ededed;
+        }
+        /*一级导航浮动*/
+        ul.menu::after {
+            content: '';
+            display: block;
+            clear: both;
+        }
+        ul.menu > li {
+            float: left;
+            width: 120px;
+            line-height: 3em;
+            height: 3em;
+            text-align: center;
+            cursor:pointer;
+        }
+
+        /*二级导航项分割线*/
+        ul.submenu {
+            /*默认隐藏*/
+            display: none;
+        }
+        ul.submenu > li {
+            border-bottom: 1px solid #fff;
+        }
+
+        /*内容区*/
+        .content {
+            min-height: 800px;
+            background-color: #fff;
+        }
+
+
+        /*选中特效*/
+        ul.menu > li:hover {
+            background-color: #666;
+        }
+        ul.menu > li:hover > a,button {
+            color: #fff;
+        }
+        ul.menu > li:hover > ul.submenu {
+            display: block;
+        }
+
+
+
+        /*动画帧*/
+        @keyframes fade {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        /*基础动画样式*/
+        .animated {
+            animation-duration: 1s;
+            animation-fill-mode: both;
+        }
+        .fadeIn {
+            animation-name: fade;
+            animation-direction: normal;
+        }
+    </style>
+    <script>
+        $(function () {
+
+            /*if ($("#addDongTai_btn").val()==1||$("#addDongTai_btn").val()==3){ //仅允许老师和学生发表动态
+                $("#addDongTai_btn").click(function () {
+                    window.location.href = "/user/dongTai/addDongTai.html";
+                })
+            }else {
+                $("#addDongTai_btn").hide();
+                $("#myDongTai_btn").hide();
+            }*/
+
+        })
+    </script>
+    <!--<style>
+        body,ul,ol,li,div,p{margin:0px;padding:0px;}
+        ul{list-style-type:none;border:1px solid blue;background:#088038;height:50px;}
+        ul div{float: left;height: 45px;width: 15%}
+        ul li{float:left;heihgt:45px;line-height:45px;width:100px;text-align:center;}
+        ul li a:link,a:visited{color:#fff;text-decoration:none;}
+        .act{background:#ff6600;}
+    </style>-->
+    <div style="width: 12%;height: 10px;float: left"></div>
+    <div style="padding: 2px;width: 58%;float: left">
+        <h7>欢迎进入家校互联系统！</h7>
+    </div>
+    <div style="padding: 2px;width: 30%;float: left">
+        <script>
+            $(function () {
+                checkTouXiang();
+            })
+            function checkTouXiang() {
+                if ($("#uTouXiang").attr("src")==null||$("#uTouXiang").attr("src")==''){
+                    $("#uTouXiang").attr("src","/img/small/默认头像.png");
+                }
+            }
+        </script>
+        <h7><img id="uTouXiang" th:src="${#session.getAttribute('LOGIN_USER').uTouXiang}" style="border-radius: 50%;overflow: hidden;width: 20px;height: 20px;"/>
+            <span id="loginName" th:value="${#session.getAttribute('LOGIN_USER').uName}" th:text="${#session.getAttribute('LOGIN_USER').uName}">xxx</span>&nbsp;&nbsp;&nbsp;
+            <style type="text/css">
+                #geRenSheZhi{
+                    width: auto;
+                    height: 20px;
+                    border: solid 0px blue;
+                    appearance: none;
+                    -moz-appearance: none;
+                    -webkit-appearance: none;
+                    background: url("http://ourjs.github.io/static/2015/arrow.png") no-repeat scroll right center transparent;
+                }
+                select::-ms-expand{display: none;}
+            </style>
+            权限：<span th:value="${#session.getAttribute('LOGIN_USER').uQuanXian}" id="loginQuanXian" th:text="${#session.getAttribute('LOGIN_USER').uQuanXian==1?'辅导员':#session.getAttribute('LOGIN_USER').uQuanXian==2?'家长':'学生'}">xxx
+            </span>&nbsp;&nbsp;&nbsp;
+            <!--<a href="#" style="color: black">退出登录</a>-->
+            <!--<select id="geRenSheZhi">
+                <option value ="volvo"><a>个人设置</a></option>
+                <option value ="saab"><a href="/userLogin.html" target="_top" style="color: black" onclick="killSession()">退出登录</a></option>
+                &lt;!&ndash;<option value="opel">Opel</option>
+                <option value="audi">Audi</option>&ndash;&gt;
+            </select></h7>-->
+            <!--<ul class="dropdown-menu" style="min-width: 100%;min-height: 90px; ">
+                &lt;!&ndash;<li><a href="#" >个人信息</a></li>&ndash;&gt;
+                <li><a href="/logout">切换账号</a></li>
+                <li><a href="/logout">退出</a></li>
+            </ul>-->
+
+        </h7></div>
+<!--    <div style="float: right;margin-right: 215px;position: absolute; z-index: 10;">-->
+    <div style="float: right;margin-left: 82%;position: absolute; z-index: 10;">
+        <h7>
+        <ul class="menu">
+            <li style="height: 25px;width: 80px;text-align: center;line-height: 25px;background-color: #cccccc">
+                <a href="#">个人设置</a>
+                <!-- 二级导航开始 -->
+                <ul class="submenu">
+                    <li style="text-align: center;line-height: 25px"><a th:href="@{/updateUser.html}">修改密码</a></li>
+                    <li style="text-align: center;line-height: 25px"><a th:href="@{/logout.do}">退出登录</a></li>
+                </ul>
+                <!-- 二级导航结束 -->
+            </li>
+        </ul>
+        </h7>
+    </div>
+</div>
+<div style="height: 120px;width: 100%">
+    <div style="width: 12%;height: 120px;float: left"></div>
+    <div style="padding: 20px;width: 50%;float: left">
+        <div style="float: left"><img src="/img/small/顶部图标.png" width="60px" height="60px"></div>
+        <div style="float: left;margin-left: 13px"><h3 style="color: #088038">家校互联</h3></div><br><br>
+        <div style="float: left;margin-left: 13px"><h4 style="color: #088038">全力打造，精心呵护</h4></div>
+    </div>
+    <div style="padding: 20px;width: 30%;float: left">
+        <div style="float: left;margin-left: 10%"><img src="/img/small/电话图标黄.png" width="60px" height="60px"></div>
+        <div style="float: left;margin-left: 13px"><h4 style="color: #088038">咨询电话</h4></div><br><br>
+        <div style="float: left;margin-left: 13px"><h3 style="color: #088038">400-1234-1234</h3></div>
+    </div>
+</div>
+<!--导航栏开始-->
+    <input type="hidden" th:value="${#httpServletRequest.requestURI}" id="navNum">
+    <!--<ul type="desc">
+        <li><a th:href="@{/index.html}" value="0" id="nav0" uri="/index.html">网站首页</a></li>
+        <li><a th:href="@{/jianJie.html}" value="1" id="nav1" uri="/jianJie.html">系统简介</a></li>
+        <li><a th:href="@{/schoolNews.html}" value="2" id="nav2" uri="/schoolNews.html">校园新闻</a></li>
+        <li><a th:href="@{/dongTai.html}" value="3" id="nav3" uri="/dongTai.html">师生动态</a></li>
+        <li><a th:href="@{/liuYan.html}" value="4" id="nav4" uri="/liuYan.html">留言交流</a></li>
+        <li><a th:href="@{/tongZhi.html}" value="5" id="nav5" uri="/tongZhi.html">通知公告</a></li>
+        <li><a th:href="@{/qingJia.html}" value="6" id="nav6" uri="/qingJia.html">请假管理</a></li>
+        <li><a th:href="@{/callMe.html}" value="7" id="nav7" uri="/callMe.html">联系我们</a></li>
+        <li><a th:href="@{/houTai.html}" value="8" id="nav8" uri="/houTai.html">后台管理</a></li>
+    </ul>-->
+    <!--导航栏结束-->
+<!--    <div style="margin-left: auto;margin-right: auto">-->
+    <header style="position: absolute; z-index: 10;"> <!--z-index: 10值越大代表浮动的优先级越高-->
+        <!-- 一级导航开始 -->
+
+        <nav>
+            <ul class="menu" style=" width: 100%;height: 3em;">
+                <li style="margin-left: 193px;">
+                    <a th:href="@{/index.html}">网站首页</a>
+                </li>
+                <li>
+                    <a th:href="@{/user/jianjie/jianJie.html}">系统简介</a>
+                </li>
+                <li>
+                    <a th:href="@{/user/news/schoolNews.html}">校园新闻</a>
+                </li>
+                <li>
+
+                    <a th:href="@{/user/dongTai/dongTai.html}">师生动态</a>
+                    <!-- 二级导航开始 -->
+                    <ul class="submenu">
+                        <li><a th:href="@{/user/dongTai/dongTai.html}" id="allDongTai_btn">全部动态</a></li>
+                        <li th:if="${#session.getAttribute('LOGIN_USER').uRole!='jiazhang'}"><a th:href="@{/user/dongTai/myDongTai.html}" id="myDongTai_btn">我的动态</a></li>
+                        <li th:if="${#session.getAttribute('LOGIN_USER').uRole!='jiazhang'}"><a th:href="@{/user/dongTai/addDongTai.html}" id="addDongTai_btn" style="background-color: Transparent; border-style :none;color: #666666;" th:value="${#session.getAttribute('LOGIN_USER').uQuanXian}">发表动态</a></li>
+<!--                        <li><a href=" javascript:void(0)" id="addDongTai_btn" th:value="${#session.getAttribute('LOGIN_USER').uQuanXian}">发表动态</a></li>-->
+<!--                        <li><a href="#" id="addDongTai_btn">发表动态</a></li>-->
+                    </ul>
+                    <!-- 二级导航结束 -->
+                </li>
+                <li>
+                    <a th:href="@{/user/liuYan/liuYan.html}">留言交流</a>
+                    <!-- 二级导航开始 -->
+                    <ul class="submenu">
+                        <li><a id="myLiuYan" th:href="@{/user/liuYan/liuYan.html}">我的留言</a></li>
+                        <li><a th:href="@{/user/liuYan/liuYanForMe.html}">我的消息</a></li>
+                        <li><a th:href="@{/user/liuYan//addLiuYan.html}">我要留言</a></li>
+                    </ul>
+                    <!-- 二级导航结束 -->
+                </li>
+                <li>
+                    <a th:href="@{/user/tongZhi/tongZhi.html}">通知公告</a>
+                </li>
+                <script>
+                    $(function () {
+                        if ($("#loginQuanXian")==1){
+                            $("#qingJia").attr("href","/user/qingJia/qingJiaTeacher.html")
+                        }
+                        if ($("#loginQuanXian")==2){
+                            $("#qingJia").attr("href","/user/qingJia/qingJiaJiaZhang.html")
+                        }
+                        if ($("#loginQuanXian")==3){
+                            $("#qingJia").attr("href","/user/qingJia/qingJiaStuQuery.html")
+                        }
+                    })
+
+                </script>
+                <li>
+                    <a id="qingJia" href="">请假管理</a>
+                    <ul class="submenu">
+                        <li th:if="${#session.getAttribute('LOGIN_USER').uRole=='student'}"><a th:href="@{/user/qingJia/qingJiaStuShenQing.html}">在线请假</a></li>
+                        <li th:if="${#session.getAttribute('LOGIN_USER').uRole=='student'}"><a th:href="@{/user/qingJia/qingJiaStuQuery.html}">请假记录</a></li>
+                        <li th:if="${#session.getAttribute('LOGIN_USER').uRole=='teacher'}"><a th:href="@{/user/qingJia/qingJiaTeacher.html}">请假审批</a></li>
+                        <li th:if="${#session.getAttribute('LOGIN_USER').uRole=='jiazhang'}"><a th:href="@{/user/qingJia/qingJiaJiaZhang.html}">请假审批</a></li>
+                    </ul>
+                    <!-- 二级导航结束 -->
+                </li>
+
+                <li>
+                    <a th:href="@{/user/callMe/callMe.html}">联系我们</a>
+                </li>
+               <!-- <li>
+                    <a th:href="@{/houTai.html}">后台管理</a>
+                </li>-->
+            </ul>
+        </nav>
+        <!-- 一级导航结束 -->
+    </header>
+
+    <div style="color: #EDEDED;width: 100%;height: 3em;background-color: #ededed"></div>
+</div>
+</body>
+</html>

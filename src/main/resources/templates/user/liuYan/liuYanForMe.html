@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>留言交流</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+
+    <script>
+        var maxPage = 1;
+        var pageAllNum = 1; ////用于记录每次留言回复操作之前的页码，回复后还能转到该页面
+        function changePage(mm) {
+            var flag = $(mm).val();
+            var span1 = parseInt($("#span1").text());
+            if (flag=="shou"){
+                $("#span1").val(1);
+                $("#span1").text(1);
+                pageAllNum = $("#span1").val()
+                showLiuYan($("#fromOrToFlag").val(),$("#span1").val());
+            }
+            if (flag=="wei"){
+                $("#span1").val(maxPage);
+                $("#span1").text(maxPage);
+                pageAllNum = $("#span1").val()
+                showLiuYan($("#fromOrToFlag").val(),$("#span1").val());
+            }
+            if(flag == "shang") {
+                if ($("#span1").val()>1) {
+                    $("#span1").val(--span1);
+                    pageAllNum = $("#span1").val()
+                    $("#span1").text($("#span1").val());
+                    showLiuYan($("#fromOrToFlag").val(),$("#span1").val());
+                }else {
+                    $("#span1").val(1);
+                    $("#span1").text(1);
+                    pageAllNum = $("#span1").val()
+                }
+            }
+            if(flag == "xia") {
+                // alert(maxPage);
+                if ($("#span1").val()<maxPage) {
+                    $("#span1").val(++span1);
+                    pageAllNum = $("#span1").val()
+                    $("#span1").text($("#span1").val());
+                    showLiuYan($("#fromOrToFlag").val(),$("#span1").val());
+                }else {
+                    $("#span1").val(maxPage);
+                    $("#span1").text(maxPage);
+                    pageAllNum = $("#span1").val()
+                }
+            }
+            // $("#pageN").val($("#span1").val());
+        }
+
+        function showLiuYan(pageNum) {
+            /*if (flag==1){ //显示我的留言
+                $.ajax({
+                    url:"/liuYan/findLiuYanByUNameFrom.do",
+                    type:"get",
+                    data:{pageNum:pageNum,uNameFrom:$("#loginName").attr("value")},
+                    success:function (map) {
+                        $("#text").html("");
+                        var result = map["list1"];
+                        maxPage = map["maxPage"];
+                        $("#maxPage").val(maxPage);
+                        $("#maxPage").text(maxPage);
+                        if (result.length==0){
+                            $("#text").append("<div style='margin: 0 auto' align='center'><h4>您还没有创建过留言！</h4></div>")
+                        }else {
+                            for (var i=0;i<result.length;i++){
+                                var liuYan = result[i];
+                                var time = new Date(liuYan.lCreateTime);
+                                var huiFu = (liuYan.lHuiFu==null||liuYan.lHuiFu=="")?"暂无回复":liuYan.lHuiFu;
+                                var uPhone = (result[i].user.uPhone==null||result[i].user.uPhone=="")?"无":result[i].user.uPhone;
+                                var uEmail = (result[i].user.uEmail==null||result[i].user.uEmail=="")?"无":result[i].user.uEmail;
+                                $("#text").append(/!*"<br>"+*!/
+                                    "<table style='width: 70%' border='1' bordercolor='blue' align='center'>" +
+                                        "<tr><td>"+time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+"&nbsp;&nbsp;"+time.getHours()+":"+
+                                        time.getMinutes()+":"+time.getSeconds()+"</td></tr>"+
+                                        "<tr><td>"+result[i].lText+"</td></tr>"+
+                                        "<tr><td>"+"姓名:"+result[i].uNameFrom+"&nbsp;&nbsp;"+
+                                        "电话:"+uPhone+"&nbsp;&nbsp;"+
+                                        "邮箱:"+uEmail+"</td></tr>"+
+                                        "<tr><td>回复内容:"+huiFu+"</td></tr>"+
+                                    "</table><br>"
+                                )
+                            }
+                        }
+                    }
+                })
+            }*/
+            /*if (flag==2){*/ //显示别人给我留的言
+                $.ajax({
+                    url:"/liuYan/findLiuYanByUNameTo.do",
+                    type:"get",
+                    data:{pageNum:pageAllNum,uNameTo:$("#loginName").attr("value")},
+                    success:function (result) {
+                        $("#text").html("");
+                        // $("#text").append("<br>");
+                        if (result.length==0){
+                            $("#text").append("<table style='width: 70%' border='1' bordercolor='green' class='table-striped' align='center'><tr><td><h4>暂时还没有用户给您留言哦！</h4></td></tr></table>")
+                        }else {
+                            maxPage = result[0]["maxPage"];
+                            $("#maxPage").val(maxPage);
+                            $("#maxPage").text(maxPage);
+                            for (var i=0;i<result.length;i++){
+                                var map = result[i];
+                                var liuYan = map["liuYan"];
+                                var uNameFromMsg = map["uNameFromMsg"];
+                                var time = new Date(liuYan.lCreateTime);
+                                var uPhone = (uNameFromMsg.uPhone==null||uNameFromMsg.uPhone=="")?"无":uNameFromMsg.uPhone;
+                                var uEmail = (uNameFromMsg.uEmail==null||uNameFromMsg.uEmail=="")?"无":uNameFromMsg.uEmail;
+                                var huiFu = (liuYan.lHuiFu==null||liuYan.lHuiFu=="")?"<button class='btn btn-primary btn-sm' onclick='chuanZhi("+liuYan.lId+")' data-toggle='modal' data-target='#myModal'>回复</button>":"您已回复:"+liuYan.lHuiFu;
+                                $("#text").append(
+                                    "<table style='width: 70%' border='1' bordercolor='green' class='table-striped' align='center'>" +
+                                    "<tr><td>"+time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+"&nbsp;&nbsp;"+time.getHours()+":"+
+                                    time.getMinutes()+":"+time.getSeconds()+"</td></tr>"+
+                                    "<tr><td>"+uNameFromMsg.uName+"给您的留言:"+"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+liuYan.lText+"</td></tr>"+
+                                    "<tr><td>"+
+                                    "电话:"+uPhone+"&nbsp;&nbsp;"+
+                                    "邮箱:"+uEmail+"</td></tr>"+
+                                    "<tr><td><span>"+huiFu+"</span></td></tr>"+
+                                    "</table>"+"<br>"
+                                )
+                            }
+                        }
+                    }
+                })
+            // }
+        }
+
+        $(function () {
+            showLiuYan(1);
+            // alert(maxPage)
+            /*$("#addLiuYan").click(function () {
+                window.location.href="/addLiuYan.html";
+            })*/
+
+            /*$("#liuYanForMe").click(function () {
+                /!*$("#fromOrToFlag").val(2);
+                $("#liuYanForMe").hide();
+                $("#myLiuYan").removeAttr("hidden");
+                $("#myLiuYan").show();*!/
+                showLiuYan(1);
+            })
+
+            $("#myLiuYan").click(function () {
+                // $("#fromOrToFlag").val(1);
+                // $("#liuYanForMe").val("");
+                // $("#myLiuYan").hide();
+                // $("#liuYanForMe").show();
+                showLiuYan(1);
+            })*/
+
+        })
+
+        function chuanZhi(lId) {
+            $("#lId").val(lId);
+            $("#pageN").val($("#span1").val());
+        }
+
+        function huiFu() { //回复留言
+            // alert($("#lId").val()+" "+$("#pageN").val());
+            $.ajax({
+                url:"/liuYan/huiFuLiuYan.do",
+                type:"get",
+                data:{lId:$("#lId").val(),lHuiFu:$("#lHuiFu").val()},
+                success:function (result) {
+                    showLiuYan(2,pageAllNum);
+                },
+                complete:function(){
+                    $("#lHuiFu").val("");
+                    $("#myModal").modal("hide");
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }
+
+    </script>
+</head>
+<body>
+    <div th:include="bar/header::header_bar"></div>
+    <div style="height: 190px;width: 100%;background-color: blueviolet;">
+        <img src="/img/banner/在线留言banner.png" style="width: 100%;height: 190px;background-repeat: no-repeat">
+    </div>
+    <div style="width: 100%;height: 60px;float: left"></div>
+    <div style="margin-left: 15%;border: solid 1px #cccccc;width: 70%;height: 40px;float: left">
+        <div style="float: left;height: 100%;width: 100px;background-color: #088038;text-align: center"><div style="margin-top: 8px"><font color="white">我的消息</font></div></div>
+        <div style="float: right;height: 100%;width: auto">
+            <div style="margin-top: 8px">
+                <font>
+                    当前位置:
+                    <a th:href="@{/index.html}">网站首页</a>&nbsp;>
+                    我的消息&nbsp;&nbsp;
+                </font>
+            </div>
+        </div>
+    </div>
+    <div style="width: 100%;height: 40px;float: left"></div>
+    <div style="width: 70%;margin: 0 auto">
+        <div style="width: 50px;height: 15px"></div>
+<!--        <input type="hidden" id="fromOrToFlag" th:value="1">-->
+<!--        <button id="myLiuYan" class="btn btn-sm" style="background-color: #49B3DC" hidden><font>我的留言</font></button>-->
+<!--        <button id="liuYanForMe" class="btn btn-sm" style="background-color: #49B3DC">我的消息</button>-->
+<!--        <button id="addLiuYan" class="btn btn-sm" style="background-color: #54FFFF">我要留言</button>-->
+        <div style="width: 50px;height: 15px"></div>
+    </div>
+    <div id="text">
+
+    </div>
+    <div style="margin: 0 auto;width: 25%">
+        <button onclick="changePage(this)" class="btn btn-link mypage" value="shou">首页</button>
+        <button onclick="changePage(this)" class="btn btn-link mypage" value="shang">上一页</button>
+        第&nbsp;<span id="span1" value="1">1</span>&nbsp;页
+        共&nbsp;<span id="maxPage" value="x">x</span>&nbsp;页
+        <button onclick="changePage(this)" class="btn btn-link mypage" value="xia">下一页</button>
+        <button onclick="changePage(this)" class="btn btn-link mypage" value="wei">尾页</button>
+    </div>
+    <br><br>
+
+    <!--模态框-->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel" align="center">留言回复</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body" style="margin: 0 auto">
+                    <form>
+                        <textarea placeholder="回复内容..." cols="45" rows="8" name="lHuiFu" id="lHuiFu"></textarea>
+                        <input type="hidden" id="lId" name="lId" value="">
+                        <input type="hidden" id="pageN" name="pageN" value="">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" id="huiFuTextBtn" onclick="huiFu()">回复</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+    <br><br>
+    <div th:include="bar/footBar::foot_bar"></div>
+</body>
+</html>

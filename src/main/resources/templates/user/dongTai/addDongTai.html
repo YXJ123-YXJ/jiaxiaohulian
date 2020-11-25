@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>发表动态</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+
+    <script>
+        $(function () {
+            /*$("#dtName").blur(function () {
+                if ($("#dtName").val()==""||$("#dtName")==null){
+                    $("#msgName").html("<font color='red'>动态标题不能为空</font>");
+                    $("#addbtn").attr("disabled",true);
+                }else {
+                    $("#msgName").html("");
+                }
+            })
+            $("#dtText").blur(function () {
+                if ($("#dtText").val()==""||$("#dtText")==null){
+                    $("#msgText").html("<font color='red'>动态内容不能为空</font>");
+                    $("#addbtn").attr("disabled",true);
+                }else {
+                    $("#msgText").html("");
+                    $("#addbtn").attr("disabled",false);
+                }
+            })*/
+            check();
+            $("#addbtn").click(function () {
+                $("#form1").attr("action","/dongTai/addDongTai.do").submit();
+            })
+        })
+
+        function check(){
+            $("#dtName").blur(function () {
+                if ($("#dtName").val()==""||$("#dtName").val()==null){
+                    $("#msgName").html("<font color='red'>动态标题不能为空</font>");
+                }else{
+                    $("#msgName").html("");
+                }
+            })
+            $("#dtText").blur(function () {
+                if ($("#dtText").val()==""||$("#dtText").val()==null){
+                    $("#msgText").html("<font color='red'>动态内容不能为空</font>");
+                }else {
+                    $("#msgText").html("");
+                }
+            })
+            $("#flagTr").mouseover(function () {
+                if ($("#dtName").val()!=""&&$("#dtName").val()!=null&&$("#dtText").val()!=""&&$("#dtText").val()!=null) {
+                    $("#addbtn").attr("disabled", false);
+                } else {
+                    $("#addbtn").attr("disabled", true);
+                }
+            })
+        }
+
+
+        function checkFile(obj){
+            var photoExt=obj.value.substr(obj.value.lastIndexOf(".")).toLowerCase();//获得文件后缀名
+            console.log(typeof (photoExt),photoExt)
+            if((photoExt==".jpg")||(photoExt==".jpeg")||(photoExt==".png")){
+                $("#addbtn").attr("disabled",false);
+            }else{
+                $("#msg").html("");
+                alert("请上传后缀名为jpg,jpeg,png格式的照片!");
+                $("#addbtn").attr("disabled",true);
+                return false;
+            }
+            var fileSize = 0;
+            var isIE = /msie/i.test(navigator.userAgent) && !window.opera;
+            if (isIE && !obj.files) {
+                var filePath = obj.value;
+                var fileSystem = new ActiveXObject("Scripting.FileSystemObject");
+                var file = fileSystem.GetFile (filePath);
+                fileSize = file.Size;
+            }else {
+                fileSize = obj.files[0].size;
+                console.log(fileSize)
+            }
+            fileSize=Math.round(fileSize/1024*100)/100; //单位为KB
+            console.log(fileSize)
+            if(fileSize>=3072){
+                $("#msg").html("<font color='red'>照片最大尺寸为3M，请重新上传!</font>");
+                $("#addbtn").attr("disabled",true); //按钮失效
+                return false;
+            }else {
+                $("#addbtn").attr("disabled",false); //按钮生效
+                $("#msg").html("<font color='green'>✔</font>");
+            }
+        }
+    </script>
+</head>
+<body>
+    <div th:include="bar/header::header_bar"></div>
+    <div style="height: 190px;width: 100%;background-color: blueviolet">
+        <img src="/img/banner/师生动态banner.png" style="width: 100%;height: 190px;background-repeat: no-repeat">
+    </div>
+    <div style="width: 100%;height: 60px;float: left"></div>
+    <div style="margin-left: 15%;border: solid 1px #cccccc;width: 70%;height: 40px;float: left">
+        <div style="float: left;height: 100%;width: 100px;background-color: #088038;text-align: center"><div style="margin-top: 8px"><font color="white">发表动态</font></div></div>
+        <div style="float: right;height: 100%;width: auto">
+            <div style="margin-top: 8px">
+                <font>
+                    当前位置:
+                    <a th:href="@{/index.html}">网站首页</a>&nbsp;>
+                    发表动态&nbsp;&nbsp;
+                </font>
+            </div>
+        </div>
+    </div>
+    <div style="width: 100%;height: 40px;float: left"></div>
+    <div style="width: 60%;height: 600px;margin: 0 auto">
+        <form id="form1" method="post" enctype="multipart/form-data"><br>
+            <table align="center" class="table table-hover" border="1" bordercolor="green">
+                <tr>
+                    <td>动态标题:</td>
+                    <td><input type="text" id="dtName" name="dtName" placeholder="请输入动态标题"><span id="msgName"></span></td>
+                </tr>
+                <tr>
+                    <td>动态内容:</td>
+                    <td><textarea placeholder="请输入动态内容..." id="dtText" cols="55" rows="10" name="dtText"></textarea><span id="msgText"></span></td>
+                </tr>
+                <input type="hidden" name="uName" th:value="${#session.getAttribute('LOGIN_USER').uName}">
+                <tr id="flagTr">
+                    <td>上传图片:</td>
+                    <td><input placeholder="上传图片" onchange="checkFile(this)" type="file" name="file"><span id="msg"></span></td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <input type="reset" class="btn btn-sm" value="重置">&nbsp;&nbsp;
+                        <input type="button" id="addbtn" class="btn btn-sm btn-primary" value="发布">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <br><br><br>
+    <div th:include="bar/footBar::foot_bar"></div>
+</body>
+</html>

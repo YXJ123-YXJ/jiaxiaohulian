@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+</head>
+<body>
+    <div>
+        <div style="width: 100%;height: 100px;background-color: #4090B8"></div>
+        <div style="width: 100%;height: 25px;background-color: #009898">
+            <div style="width: 10%;height: 25px;float: left"></div>
+            <div style="width: 40%;float: left">
+                <marquee scrollAmount="3" behavior="alternate">
+                    <span style="font-weight: bolder;color: white;">
+                        欢迎进入家校互联系统后台，希望能给您带来好心情！
+                    </span>
+                </marquee>
+            </div>
+            <div style="float: right">
+                当前用户:<span th:value="${#session.getAttribute('LOGIN_ADMIN').uName}" th:text="${#session.getAttribute('LOGIN_ADMIN').uName}" value="">admin</span>&nbsp;&nbsp;
+                权限:<span th:value="${#session.getAttribute('LOGIN_ADMIN').uRole}" th:text="${#session.getAttribute('LOGIN_ADMIN').uRole}">超级管理员</span>&nbsp;&nbsp;
+                <a th:href="@{/logout.do}" th:target="_top" style="color: black">退出</a>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

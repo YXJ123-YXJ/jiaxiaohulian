@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>请假审批</title>
+    <link rel="shortcut icon" href="/static/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script>
+        function findQingJiaOverSevenDays(){
+            $.ajax({
+                url:"/admin/findQingJiaOverSevenDays.do",
+                type:"get",
+                success:function (result) {
+                    var tbody = $("#tbody");
+                    if (result==null){
+                        tbody.append("<tr><td colspan='7'><h2>暂无学生请长假记录！</h2></td></tr>");
+                    }else {
+                        for (var i = 0; i < result.length; i++) {
+                            var qingJia = result[i];
+                            var state = "";
+                            var qTimeFrom = new Date(qingJia.qTimeFrom);
+                            var qTimeTo = new Date(qingJia.qTimeTo);
+                            var qDays = qingJia.qDays==1?"一天":qingJia.qDays==2?"两天":qingJia.qDays==3?"三天到六天":"七天及以上";
+                            if (qingJia.qUaFlag==1) {
+                                state = "<span><font color='green'>已准假</font></span>";
+                            } else if (qingJia.qUaFlag==2){
+                                state = "<span><font color='red'>不同意</font></span>";
+                            }else {
+                                state = "<span><button class='btn btn-primary btn-sm' value='"+qingJia.qId+"' flag='1' onclick='stateChange(this)'>同意</button>" +
+                                    "&nbsp;<button class='btn btn-warning btn-sm' value='"+qingJia.qId+"' flag='2' onclick='stateChange(this)'>不同意</button></span>";
+                            }
+                            tbody.append("<tr><td>"+(i+1)+"</td>\n" +
+                                "         <td>"+qingJia.usName+"</td>\n" +
+                                "         <td><textarea cols='40' rows='2' readonly>"+qingJia.qText+"</textarea></td>\n" +
+                                "         <td>"+qDays+"</td>\n" +
+                                "         <td>"+qTimeFrom.getFullYear()+"-"+(qTimeFrom.getMonth()+1)+"-"+qTimeFrom.getDate()+"&nbsp;"+qTimeFrom.getHours()+":"+qTimeFrom.getMinutes()+":"+qTimeFrom.getSeconds()+"</td>\n" +
+                                "         <td>"+qTimeTo.getFullYear()+"-"+(qTimeTo.getMonth()+1)+"-"+qTimeTo.getDate()+"&nbsp;"+qTimeTo.getHours()+":"+qTimeTo.getMinutes()+":"+qTimeTo.getSeconds()+
+                                "         <td>"+state+"</td>\n" +
+                                "</td></tr>")
+                        }
+                    }
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }
+
+        $(function () {
+            findQingJiaOverSevenDays();
+        })
+
+        function stateChange(qId) {
+            var state = $(qId).attr("flag");
+            $.ajax({
+                url:"/admin/qUaFlagChange.do",
+                type:"post",
+                data:{qUaFlag:state,qId:$(qId).val()},
+                success:function (result) {
+                    if (state==1){
+                        $(qId).parent("span").html("<font color='green'>已准假</font>");
+                    }else {
+                        $(qId).parent("span").html("<font color='red'>不同意</font>");
+                    }
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+
+        }
+    </script>
+</head>
+<body>
+    <br>
+    <div>
+        <table border="1" class="table table-striped" style="width: 90%" align="center">
+            <thead>
+            <tr style="text-align: center">
+                <td><b>序号</b></td>
+                <td><b>请假申请人</b></td>
+                <td><b>请假原因</b></td>
+                <td><b>请假天数</b></td>
+                <td><b>请假开始时间</b></td>
+                <td><b>请假结束时间</b></td>
+                <td><b>是否同意</b></td>
+            </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+    </div>
+    <br><br><br><br><br>
+</body>
+</html>

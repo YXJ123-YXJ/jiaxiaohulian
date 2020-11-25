@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理</title>
+    <link rel="shortcut icon" href="/static/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script>
+        function addAdmin(){
+            $.ajax({
+                url:"/admin/addAdmin.do",
+                type:"post",
+                data:{uName:$("#aName").val(),uPwd:$("#aPwd").val(),uSex:$("#aSex").val(),uPhone:$("#aPhone").val(),uRole:$("#aRole").val()},
+                success:function(result){
+                    alert("添加成功！");
+                    $("#aName").val("");
+                    $("#aPwd").val("");
+                    $("#aPhone").val("");
+                },
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }
+
+        function check(){
+            $("#aName").blur(function () {
+                if ($("#aName").val()==""||$("#aName").val()==null){
+                    $("#msgName").html("<font color='red'>账号不能为空</font>");
+                }else{
+                    $.ajax({
+                        url:"/admin/findAdminByName.do",
+                        data:{uName:$(this).val()},
+                        type:"get",
+                        success:function (result) {
+                            if (result.uName!=null&&result.uName!=''){
+                                $("#msgName").html("<font color='red'>该用户名已存在，请从新输入</font>");
+                                $("#flagAName").attr("value","fail");
+                            }else {
+                                $("#flagAName").attr("value","success");
+                                $("#msgName").html("");
+                            }
+                        }
+                    })
+                }
+            })
+            $("#aName").change(function () {
+                if ($("#aName").val()==""||$("#aName").val()==null){
+                    $("#msgName").html("<font color='red'>账号不能为空</font>");
+                }else{
+                    $.ajax({
+                        url:"/admin/findAdminByName.do",
+                        data:{uName:$(this).val()},
+                        type:"get",
+                        success:function (result) {
+                            if (result.uName!=null&&result.uName!=''){
+                                $("#msgName").html("<font color='red'>该用户名已存在，请从新输入</font>");
+                                $("#flagAName").attr("value","fail");
+                            }else {
+                                $("#flagAName").attr("value","success");
+                                $("#msgName").html("");
+                            }
+                        }
+                    })
+                }
+            })
+            $("#aPwd").blur(function () {
+                if ($("#aPwd").val()==""||$("#aPwd").val()==null){
+                    $("#msgPwd").html("<font color='red'>密码不能为空</font>");
+                }else {
+                    $("#msgPwd").html("");
+                }
+            })
+            $("#aPhone").blur(function () {
+                if ($("#aPhone").val()==""||$("#aPhone").val()==null){
+                    $("#msgPhone").html("<font color='red'>电话不能为空</font>");
+                }else {
+                    $("#msgPhone").html("");
+                }
+            })
+            $("#flagTr").mouseover(function () {
+                if ($("#aName").val()!=""&&$("#aName").val()!=null&&$("#aPwd").val()!=""&&$("#aPwd").val()!=null
+                    &&$("#aPhone").val()!=""&&$("#aPhone").val()!=null&&$("#flagAName").attr("value")=="success") {
+                    $("#addBtn").attr("disabled", false);
+                } else {
+                    $("#addBtn").attr("disabled", true);
+                }
+            })
+        }
+
+        $(function () {
+            check();
+        })
+
+        function reset() {
+            $("#aName").val("");
+            $("#aPwd").val("");
+            $("#aPhone").val("");
+        }
+    </script>
+</head>
+
+<body>
+    <div id="allText" style="margin-left: 10px;margin-top: 30px">
+        <input type="hidden" id="flagAName" value="">
+        <table class='table table-hover' border='1' bordercolor='green'>
+            <tr><td colspan='2'>添加管理员</td></tr>
+            <tr>
+                <td>账号:</td>
+                <td><input type="text" name='aName' id='aName'><span id="msgName"></span> </td>
+            </tr>
+            <tr>
+                <td>密码:</td>
+                <td><input type="text" name='aPwd' id='aPwd'><span id="msgPwd"></span> </td>
+            </tr>
+            <tr>
+                <td>性别:</td>
+                <td>
+                    <select id="aSex" name="aSex" style="width: 21%;">
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>权限:</td>
+                <td>
+                    <select id="aRole" name="aRole" style="width: 21%;">
+                        <option value="超级管理员">超级管理员</option>
+                        <option value="普通管理员">普通管理员</option>
+                    </select>
+                </td>
+            </tr>
+            <tr id="flagTr">
+                <td>电话:</td>
+                <td><input type="text" name='aPhone' id='aPhone'><span id="msgPhone"></span> </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    &nbsp;&nbsp;<button class='btn btn-primary btn-sm' onclick="reset()">重置</button>&nbsp;&nbsp;
+                    <button class='btn btn-primary btn-sm' id="addBtn" onclick='addAdmin();'>添加</button>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+</body>
+
+</html>

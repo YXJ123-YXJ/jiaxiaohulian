@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>底部</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+</head>
+<body>
+<div th:fragment="foot_bar">
+    <script>
+        function wangZhan() {
+            $.ajax({
+                url:"/findWangZhan.do",
+                type:"get",
+                success:function (result) {
+                    $("#wangZhan").html("");
+                    for (var i=0;i<result.length;i++) {
+                        var wangZhan = result[i];
+                        $("#wangZhan").append("<div style='margin-right: 10px;float: left;font-size: 5px'>" +
+                            "<a href='"+wangZhan.ljSrc+"'> "+wangZhan.ljName+"</a>" +
+                            "</div>");
+                    }
+                }
+            })
+        }
+
+        $(function () {
+            wangZhan();
+        })
+    </script>
+    <div style="float: left;width: 100%;height: 130px;background-color: #F0F4F0">
+        <div style="margin-left: 15%;margin-right: 15%;margin-top: 15px;height: 130px;">
+            <font color="#127c40" size="3" face="黑体">友情链接&nbsp;</font>
+            <font color="#cccccc" face="Bahnschrift Light" size="2">LINKS</font>
+            <hr color="#cccccc" style="margin-top: 5px">
+            <div id="wangZhan"></div>
+        </div>
+
+    </div>
+    <div style="float: left;width: 100%;height: 110px;background-color: #303030">
+        <div>
+            <div style="margin-left: 15%;margin-top: 10px;">
+                <div style="float: left;font-size: 8px;color: white"><a th:href="@{/index.html}"><font color="white">网站首页</font></a></div>
+                <div style="margin-left: 25px;float: left;font-size: 8px;"><a th:href="@{/user/news/schoolNews.html}"> <font color="white"> 新闻中心</font></a></div>
+                <div style="margin-left: 25px;float: left;font-size: 8px;"><a th:href="@{/user/dongTai/dongTai.html}"><font color="white"> 师生动态</font></a></div>
+                <div style="margin-left: 25px;float: left;font-size: 8px;"><a th:href="@{/user/callMe/callMe.html}"><font color="white">联系我们</font></a></div>
+            </div>
+
+        </div>
+        <hr color="#555755" style="size: 1.5px;margin-top: 40px">
+        <div style="margin-left: 15%;margin-top: 50px;font-size: 8px;"><font color="white">Mr&nbsp;Yang&nbsp;&nbsp;版权所有</font>&nbsp;&nbsp;&nbsp;&nbsp;<font color="white" size="1">版本号1.0</font></div>
+    </div>
+
+</div>
+
+</body>
+</html>

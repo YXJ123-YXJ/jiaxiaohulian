@@ -1,0 +1,39 @@
+server:
+  port: 8888
+
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/jiaxiaohulian?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
+    username: root
+    password: root
+  mvc:   #配置全局日期格式
+    format:
+      date: yyyy-MM-dd
+  transaction:
+    rollback-on-commit-failure: true
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0 #配置为0号数据库
+  #打印多彩日志
+  output:
+    ansi:
+      enabled: detect
+
+
+mybatis:
+  mapper-locations: classpath:mybatis/mapper/*.xml
+  config-location: classpath:mybatis/mybatisConfig.xml
+  type-aliases-package: com.yxj.jiaxiaohulian.entity
+
+logging:
+  level:
+    #打印sql语句
+    com.yxj.jiaxiaohulian.dao: debug
+  #日志的保存路径
+  file:
+    path: E:\idea\idea2019\idea_workspace\ABiYeSheJi\jiaxiaohulianFilePath\log
+
+

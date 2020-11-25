@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script>
+        function findAdmin(aName,aSex,aRole) {
+            $.ajax({
+                url:"/admin/findAdmin.do",
+                type:"get",
+                data:{uName:aName,uSex:aSex,uRole:aRole},
+                success:function (result) {
+                    $("#tbody").html("");
+                    for (var i=0;i<result.length;i++){
+                        var user = result[i];
+                        var time = new Date(user.uAddTime);
+                        $("#tbody").append("<tr>" +
+                            "<td>"+(i+1)+"</td>" +
+                            "<td>"+user.uName+"</td>" +
+                            "<td>"+user.uSex+"</td>" +
+                            "<td>"+user.uPhone+"</td>" +
+                            "<td>"+user.uRole+"</td>" +
+                            "<td>"+time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+"&nbsp;"+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds()+"</td>" +
+                            "<td><button class='btn btn-sm btn-primary' data-toggle='modal' data-target='#myModal' onclick='findByAId("+user.uStuNo+")'>编辑</button>&nbsp;&nbsp;" +
+                            "<button class='btn btn-sm btn-danger' value='"+user.uStuNo+"' onclick='deleteByAId(this)'>删除</button> </td>" +
+                            "</tr>")
+                    }
+                }
+            })
+        }
+
+        function deleteByAId(aId) {
+            if (confirm("您确定要删除此管理员吗？")) {
+                $.ajax({
+                    url: "/admin/deleteAdminByAId.do",
+                    type: "post",
+                    data: {uStuNo: $(aId).val()},
+                    success: function (result) {
+                        $(aId).parent("td").parent("tr").hide();
+                    }
+                })
+            }
+        }
+
+        function findByAId(aId){
+            $.ajax({
+                url:"/admin/findAdmin.do",
+                type:"get",
+                data:{uStuNo:aId},
+                success:function (result) {
+                    user = result[0];
+                    $("#moTaiKuang").html("");
+                    $("#moTaiKuang").append("<table class='table table-hover'>\n" +
+                        "                        <tr>\n" +
+                        "                            <td>账号:</td>\n" +
+                        "                            <td><input readonly type=\"text\" class='form-control' name='aName' id='aName' value='"+user.uName+"'><span id=\"msgName\"></span> </td>\n" +
+                        "                        </tr>\n" +
+                        "                        <tr>\n" +
+                        "                            <td>性别:</td>\n" +
+                        "                            <td>\n" +
+                        "                                <select class='form-control' id=\"aSex\" name=\"aSex\" style=\"width: auto;\">\n" +
+                        "                                    <option value=\"男\">男</option>\n" +
+                        "                                    <option value=\"女\">女</option>\n" +
+                        "                                </select>\n" +
+                        "                            </td>\n" +
+                        "                        </tr>\n" +
+                        "                        <tr>\n" +
+                        "                            <td>权限:</td>\n" +
+                        "                            <td>\n" +
+                        "                                <select class='form-control' id=\"aRole\" name=\"aRole\" style=\"width: auto;\">\n" +
+                        "                                    <option value=\"超级管理员\">超级管理员</option>\n" +
+                        "                                    <option value=\"普通管理员\">普通管理员</option>\n" +
+                        "                                </select>\n" +
+                        "                            </td>\n" +
+                        "                        </tr>\n" +
+                        "                        <tr id=\"flagTr\">\n" +
+                        "                            <td>电话:</td>\n" +
+                        "                            <td><input class='form-control' type=\"text\" name='aPhone' id='aPhone' value='"+user.uPhone+"'><span id=\"msgPhone\"></span> </td>\n" +
+                        "                        </tr>\n" +
+                        "<input type='hidden' id='aId' value='"+user.uStuNo+"'>" +
+                        "                    </table>");
+                    $("#aRole option[value='"+user.uRole+"']").attr("selected", true);
+                    $("#aSex option[value='"+user.uSex+"']").attr("selected", true);
+                },
+                error:function () {
+                    alert("系统异常！");
+                }
+            })
+        }
+
+        function updateBySuperAdmin(){
+            $.ajax({
+                url:"/admin/updateBySuperAdmin.do",
+                type:"post",
+                data:{uName:$("#aName").val(),uSex:$("#aSex").val(),
+                    uRole:$("#aRole").val(),uPhone:$("#aPhone").val(),uStuNo:$("#aId").val()},
+                success:function (result) {
+                    alert("修改成功！");
+                    $("#myModal").modal("hide");
+                    findAdmin(null,null,null);
+                }
+            })
+        }
+
+        $(function () {
+            findAdmin(null,null,null);
+            check();
+        })
+
+        function find() {
+            findAdmin($("#findByAName").val(),$("#findByASex").val(),$("#findByARole").val());
+            $("#findByAName").val("");
+            $("#findByASex").val("");
+            $("#findByARole").val("");
+        }
+
+        function check(){
+            $("#aPwd").blur(function () {
+                alert($("#aPwd").val())
+                if ($("#aPwd").val()==""||$("#aPwd").val()==null){
+                    $("#msgPwd").html("<font color='red'>密码不能为空</font>");
+                }else {
+                    $("#msgPwd").html("");
+                }
+            })
+            $("#aPhone").blur(function () {
+                if ($("#aPhone").val()==""||$("#aPhone").val()==null){
+                    $("#msgPhone").html("<font color='red'>电话不能为空</font>");
+                }else {
+                    $("#msgPhone").html("");
+                }
+            })
+            $("#flagTr").mouseover(function () {
+                if ($("#aName").val()!=""&&$("#aName").val()!=null&&$("#aPwd").val()!=""&&$("#aPwd").val()!=null
+                    &&$("#aPhone").val()!=""&&$("#aPhone").val()!=null) {
+                    $("#addBtn").attr("disabled", false);
+                } else {
+                    $("#updateBtn").attr("disabled", true);
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+<div id="allText" style="margin-left: 10px;margin-top: 30px">
+    <div style="float: left;width: 10%;height: 70px"></div>
+    <div style="float: left;margin-right: 25px"><input type="text" id="findByAName" placeholder="账号"></div>
+    <div style="float: left;margin-right: 25px">性别:<select id="findByASex">
+        <option value="">全部</option>
+        <option value="男">男</option>
+        <option value="女">女</option>
+    </select></div>
+    <div style="float: left;margin-right: 25px">权限:<select id="findByARole">
+        <option value="">全部</option>
+        <option value="超级管理员">超级管理员</option>
+        <option value="普通管理员">普通管理员</option>
+    </select></div>
+    <div style="float: left;margin-left: 20px"><button onclick="find()" class="btn btn-sm" style="background-color: #5cb85c">查询</button></div>
+    <div>
+        <table class='table table-striped' border='1' bordercolor='green'>
+            <thead>
+            <tr>
+                <td>编号</td>
+                <td>账号</td>
+                <td>性别</td>
+                <td>电话</td>
+                <td>权限</td>
+                <td>添加时间</td>
+                <td>操作</td>
+            </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+    </div>
+</div>
+
+<!--模态框-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel" align="center">修改管理员信息</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body" style="margin: 0 auto" id="moTaiKuang">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="updateBtn" onclick="updateBySuperAdmin();">修改</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+</body>
+
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用戶注冊</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+
+    <style type="text/css">
+        body{background: url(bg/2.png) no-repeat center 0}
+        font{color:darkgray}
+        tr{height:60px}
+    </style>
+    <script>
+        /*function killSession() {
+            $.ajax({
+                url:"/killSession.do",
+                type:"post",
+                error:function () {
+                    alert("系统异常");
+                }
+            })
+        }*/
+
+        function updatePwd() {
+            $.ajax({
+                url:"/updateUPwd.do",
+                type:"post",
+                data:{uName:$("#uName").val(),uPwd:$("#pwd").val()},
+                success:function (result) {
+                    // killSession();
+                    // window.location.href="/userLogin.html";
+                },
+                error:function () {
+                    alert("系统异常")
+                }
+            })
+        }
+    </script>
+</head>
+
+<body>
+<form action="/toUserLogin.do" method="post" onsubmit="return checkSub()">
+    <table border="0px" cellspacing="0" cellpadding="2px" align="center" class="table table-hover" style="width: 50%;background-color: white;margin-top: 20px">
+        <thead style="background-color: #3fc3ee"><tr><td colspan="2"><h3 align="center" style="height: 50px;margin-top: 10px;">修改密码</h3></td></tr></thead>
+        <tr>
+            <td width="80px">用户名：</td>
+            <td width="400px">
+                <input type="text" name="uName" id="uName" th:value="${#session.getAttribute('LOGIN_USER').uName}" readonly alt="用户名"/>
+            </td>
+        </tr>
+        <tr>
+            <td>原密码：</td>
+            <td>
+                <input type="password" name="uOldPwd" id="uOldPwd" value="" onblur="checkOldPwd()"/>
+                <span id="uOldPwdSpan"></span>
+                <input type="hidden" id="oldPwdFlag" value="">
+            </td>
+        </tr>
+        <tr>
+            <td>新密码：</td>
+            <td>
+                <input type="password" name="uPwd" id="pwd" value="" onblur="checkPwd()"/>
+                <span id="pwdSpan">
+						<font>要求6-8位密码，首位必须为字母</font>
+						</span>
+            </td>
+        </tr>
+        <tr>
+            <td>确认密码：</td>
+            <td>
+                <input type="password" name="pwd2" id="pwd2" value="" onblur="checkPwd2()"/>
+                <span id="pwd2Span"></span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center">
+                <input class='btn btn-primary btn-sm' type="button" onclick="javascript:history.back(-1);" value="返回">&nbsp;&nbsp;
+                <input type="submit" class='btn btn-primary btn-sm' id="sub" name="sub" value="修改"/>
+            </td>
+        </tr>
+    </table>
+</form>
+
+
+</body>
+
+</html>
+
+<script type="text/javascript">
+    //验证原密码
+    function checkOldPwd() {
+        $.ajax({
+            url:"/findUserByUName.do",
+            type:"post",
+            data:{uName:$("#uName").val(),uPwd:$("#uOldPwd").val()},
+            success:function (result) {
+                var span = document.getElementById("uOldPwdSpan");
+                if (result=="success") {
+                    $("#oldPwdFlag").attr("value", "success");
+                    span.innerHTML="*原密码正确"
+                    span.style.color="green";
+                }else {
+                    span.innerHTML = "*原密码不正确";
+                    span.style.color = "red";
+                }
+            }
+        })
+        if ($("#oldPwdFlag").attr("value")=="success"){
+            return true;
+        }
+        return false;
+    }
+    //验证密码
+    function checkPwd(){
+        //获取用户获得用户名信息
+        var upwd=document.getElementById("pwd").value;
+        //创建校验规则,密码要求6-8位，首位为字母，后面5-7位是数字
+        var reg=/^[a-z]\w{5,7}$/;
+        //获取span对象
+        var span=document.getElementById("pwdSpan");
+        //开始交验
+        if(upwd==""||upwd==null){
+            //输入校验结果
+            span.innerHTML="*新密码不能为空";
+            span.style.color="red";
+            return false;
+        }else if(reg.test(upwd)){
+            //输入校验结果
+            span.innerHTML="*新密码通过";
+            span.style.color="green";
+            return true;
+        }else{
+            //输入校验结果
+            span.innerHTML="*新密码格式不符"
+            span.style.color="red";
+            return false;
+        }
+        //第一次密码为a123456，第二次密码为a1234567，则修改的第一次密码，确认密码也会重新校验
+        // checkPwd2();
+    }
+    //校验确认密码
+    function checkPwd2(){
+        //获取第一次校验密码
+        var pwd=document.getElementById("pwd").value;
+        //获取确认密码
+        var pwd2=document.getElementById("pwd2").value;
+        //获取span对象
+        var span=document.getElementById("pwd2Span");
+        //比较前两次密码是否相同
+        if( pwd2==""|| pwd2==null){
+            //输入校验结果
+            span.innerHTML="*密码不能为空";
+            span.style.color="red";
+            return false;
+        }else if(pwd===pwd2){
+            //输入校验结果
+            span.innerHTML="*密码通过";
+            span.style.color="green";
+            return true;
+        }else{
+            //输入校验结果
+            span.innerHTML="*两次密码不同，请重新输入"
+            span.style.color="red";
+            return false;
+        }
+    }
+    //提交判断
+    function checkSub(){
+        // checkOldPwd();
+        checkPwd();
+        checkPwd2();
+        var result = checkOldPwd()&&checkPwd()&&checkPwd2();
+        if (result){
+            updatePwd();
+            alert("修改成功！");
+        }
+        return result;
+    }
+    //----------------------------------------------------------------------------------------------------------------------
+    //封装校验：相同的保留，不同的传参
+    function checkField(id,reg){
+        //获取用户数据
+        var inp=document.getElementById(id);
+        var	va=inp.value;
+        var	alt=inp.alt;
+        //创建校验规则
+        //获取span对象
+        var span=document.getElementById(id+"Span");
+        //开始校验
+        if(va==""||va==null){
+            //输入校验结果
+            span.innerHTML="*"+alt+"不能为空";
+            span.style.color="red";
+            return false;
+        }else if(reg.test(va)){
+            //输入校验结果
+            span.innerHTML="*"+alt+"通过";
+            span.style.color="green";
+            return true;
+        }else{
+            //输入校验结果
+            span.innerHTML="*"+alt+"格式不符";
+            span.style.color="red";
+            return false;
+        }
+    }
+</script>

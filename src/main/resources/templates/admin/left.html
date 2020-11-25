@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理</title>
+    <link rel="shortcut icon" href="/img/favicon.ico" /><!--标签页面顶部的小图标-->
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <link th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet"/>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <style>
+        * {
+            margin:0;
+            padding:0;
+            -webkit-box-sizing:border-box;
+            -moz-box-sizing:border-box;
+            box-sizing:border-box;
+        }
+        body {
+            background:#fff;
+            font:12px Microsoft YaHei,arial,sans-serif;
+        }
+        ul {
+            list-style-type:none;
+        }
+        a {
+            color:#f39800;
+            text-decoration:none;
+        }
+        /** =======================
+         * Contenedor Principal
+         ===========================*/
+        .list-title {
+            display:inline-block;
+            width:100%;
+            max-width:200px;
+            border-top:solid 1px #ccc;
+            border-left:solid 1px #ccc;
+            border-right:solid 1px #ccc;
+            background:#FFF;
+            text-align:center;
+            height:60px;
+            line-height:60px;
+            font-size:20px;
+            color:#f39800;
+            font-weight:bold;
+            cursor:pointer;
+        }
+        h1 {
+            color:#FFF;
+            font-size:24px;
+            font-weight:400;
+            text-align:center;
+            margin-top:80px;
+        }
+        h1 a {
+            color:#f39800;
+            font-size:16px;
+        }
+        .accordion {
+            width:100%;
+            max-width:200px;
+            border:solid 1px #ccc;
+            background:#FFF;
+        }
+        .accordion .link {
+            cursor:pointer;
+            display:block;
+            padding:15px 15px 15px 42px;
+            color:#4D4D4D;
+            font-size:14px;
+            font-weight:700;
+            border-bottom:1px solid #CCC;
+            position:relative;
+            -webkit-transition:all 0.4s ease;
+            -o-transition:all 0.4s ease;
+            transition:all 0.4s ease;
+        }
+        .accordion li:last-child .link {
+            border-bottom:0;
+        }
+        .accordion li {
+            cursor:pointer;
+        }
+        .accordion li i {
+            position:absolute;
+            top:16px;
+            left:12px;
+            font-size:18px;
+            color:#595959;
+            -webkit-transition:all 0.4s ease;
+            -o-transition:all 0.4s ease;
+            transition:all 0.4s ease;
+        }
+        .accordion li i.fa-chevron-down {
+            right:12px;
+            left:auto;
+            font-size:16px;
+        }
+        .accordion li.open .link {
+            color:#f39800;
+        }
+        .accordion li.open i {
+            color:#f39800;
+        }
+        .accordion li.open i.fa-chevron-down {
+            -webkit-transform:rotate(180deg);
+            -ms-transform:rotate(180deg);
+            -o-transform:rotate(180deg);
+            transform:rotate(180deg);
+        }
+        /**
+         * Submenu
+         -----------------------------*/
+        .submenu {
+            display:none;
+            background:#f5f5f5;
+            font-size:14px;
+        }
+        .submenu li {
+            border-bottom:1px solid #d6d7dc;
+        }
+        .submenu a {
+            display:block;
+            text-decoration:none;
+            color:#666;
+            padding:12px;
+            padding-left:42px;
+            -webkit-transition:all 0.25s ease;
+            -o-transition:all 0.25s ease;
+            transition:all 0.25s ease;
+        }
+        .submenu a:hover,.submenu li.current a {
+            background:#f39800;
+            color:#FFF;
+        }
+    </style>
+</head>
+<body>
+    <div>
+
+        <div class="account-l fl">
+            <!--    <a class="list-title">图书分类</a>-->
+            <ul id="accordion" class="accordion">
+                <li>
+                    <div class="link"><i class="fa fa-leaf"></i>学校新闻管理<i class="fa fa-chevron-down"></i></div>
+                    <ul class="submenu">
+                        <li><a href="/admin/addNews.html" target="right">学校新闻添加</a></li>
+                        <li><a href="/admin/findNews.html" target="right">学校新闻查询</a></li>
+                    </ul>
+                </li>
+                <li>
+                     <div class="link"><i class="fa fa-shopping-cart"></i>师生动态管理<i class="fa fa-chevron-down"></i></div>
+                     <ul class="submenu">
+                         <li><a href="/admin/findDongTai.html" target="right">师生动态查询</a></li>
+                     </ul>
+                 </li>
+                 <li>
+                     <div class="link"><i class="fa fa-pencil-square-o"></i>通知公告管理<i class="fa fa-chevron-down"></i></div>
+                     <ul class="submenu">
+                         <li><a href="/admin/addTongZhi.html" target="right">通知公告添加</a></li>
+                         <li><a href="/admin/findTongZhi.html" target="right">通知公告查询</a></li>
+                     </ul>
+                 </li>
+                 <li>
+                     <div class="link"><i class="fa fa-file-text"></i>留言交流管理<i class="fa fa-chevron-down"></i></div>
+                     <ul class="submenu">
+                         <li><a href="/admin/findLiuYan.html" target="right">留言管理</a></li>
+                     </ul>
+                 </li>
+                 <li>
+                     <div class="link"><i class="fa fa-globe"></i>网站信息管理<i class="fa fa-chevron-down"></i></div>
+                     <ul class="submenu">
+                         <li><a href="/admin/system/xiTongJianJie.html" target="right">系统简介设置</a></li>
+                         <!--用户页面的滚动文字信息-->
+                         <li><a href="/admin/system/xiTongXieYi.html" target="right">系统协议设置</a></li>
+                         <!--把QQ设置成动态的-->
+                         <li><a href="/admin/system/lianXiWoMen.html" target="right">联系我们设置</a></li>
+                         <li><a href="/admin/system/guanYuWoMen.html" target="right">关于我们设置</a></li>
+                         <li><a href="/admin/system/addWangZhan.html" target="right">友情网站添加</a></li>
+                         <li><a href="/admin/system/findWangZhan.html" target="right">友情网站查询</a></li>
+                     </ul>
+                 </li>
+                <li>
+                    <div class="link"><i class="fa fa-unlock-alt"></i>用户管理<i class="fa fa-chevron-down"></i></div>
+                    <ul class="submenu">
+                        <!--用户管理不做添加和修改-->
+                        <li><a href="/admin/system/findStudent.html" target="right">学生管理</a></li>
+                        <li><a href="/admin/system/findJiaZhang.html" target="right">家长管理</a></li>
+                        <li><a href="/admin/system/findTeacher.html" target="right">辅导员管理</a></li>
+                        <li><a href="/admin/system/userShenHe.html" target="right">用户审核</a></li>
+                        <li><a href="/admin/system/qingJiaAdmin.html" target="right">请假审批</a></li>
+                    </ul>
+                </li>
+                 <li>
+                     <div class="link"><i class="fa fa-unlock-alt"></i>系统管理<i class="fa fa-chevron-down"></i></div>
+                     <ul class="submenu">
+                         <li><a th:if="${#session.getAttribute('LOGIN_ADMIN').uRole=='超级管理员'}" href="/admin/addAdmin.html" target="right">管理员添加</a></li>
+                         <li><a th:if="${#session.getAttribute('LOGIN_ADMIN').uRole=='超级管理员'}" href="/admin/findAdmin.html" target="right">管理员查询</a></li>
+                         <li><a href="/admin/updateAdmin.html" target="right">修改密码</a></li>
+                         <li><a th:href="@{/logout.do}" th:target="_top">退出</a></li>
+                         <script>
+                             function killSession() {
+                                 $.ajax({
+                                     url:"/logout.do",  //这个映射在LoginController中
+                                     type:"post",
+                                     error:function () {
+                                         alert("系统异常");
+                                     }
+                                 })
+                             }
+                         </script>
+                     </ul>
+                 </li>
+
+            </ul></div>
+
+        <script>
+            $(function() {
+                var Accordion = function(el, multiple) {
+                    this.el = el || {};
+                    this.multiple = multiple || false;
+
+                    // Variables privadas
+                    var links = this.el.find('.link');
+                    // Evento
+                    links.on('click', {
+                        el: this.el,
+                        multiple: this.multiple
+                    }, this.down)
+                };
+
+                Accordion.prototype.down = function(e) {
+                    var $el = e.data.el;
+                    $this = $(this);
+                    $next = $this.next();
+
+                    $next.slideToggle();
+                    $this.parent().toggleClass('open');
+
+                    if (!e.data.multiple) {
+                        $el.find('.submenu').not($next).slideUp().parent().removeClass('open');
+                    }
+                };
+
+                var accordion = new Accordion($('#accordion'), false);
+                $('.submenu li').click(function() {
+                    $(this).addClass('current').siblings('li').removeClass('current');
+                });
+            });
+        </script>
+    </div>
+
+</body>
+</html>
